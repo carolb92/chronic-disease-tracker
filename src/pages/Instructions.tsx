@@ -4,6 +4,11 @@ import PatientCard from "@/components/Instructions/PatientCard";
 import CopyField from "@/components/global/CopyField";
 import { Button } from "@/components/ui/button";
 import { SquareArrowOutUpRight } from "lucide-react";
+import FHIRVersionStep from "../assets/images/fhir-version-step.png";
+import LaunchTypeStep from "../assets/images/launch-type-step.png";
+import LaunchURLStep from "../assets/images/launch-url-step.png";
+import MiscOptionsStep from "../assets/images/misc-options-step.png";
+import PatientIDStep from "../assets/images/patient-id-step.png";
 
 type Patients = {
 	ptName: string;
@@ -24,36 +29,41 @@ const patients: Patients[] = [
 	},
 ];
 
-//TODO: replace null imgs with screenshots, replace url with vercel url once deployed
+//TODO: replace url with vercel url once deployed
 const launcherInstructions = [
 	{
 		title: "Select the launch type",
 		description:
 			'In the "Launch Type" select field, select the "Patient Portal Launch" option',
-		content: null,
+		content: <img src={LaunchTypeStep} alt="Launch type step screenshot" />,
 	},
 	{
 		title: "Select the FHIR Version",
 		description:
 			'In the "FHIR Version" select field, make sure "R4" is selected',
-		content: null,
+		content: <img src={FHIRVersionStep} alt="FHIR version step screenshot" />,
+	},
+	{
+		title: "Paste in the patient ID",
+		description: 'Under "Patients", paste the ID you copied above',
+		content: <img src={PatientIDStep} alt="Patient ID step screenshot" />,
 	},
 	{
 		title: "Misc. Options",
 		description:
 			'In the Misc. Options section, make sure the "Skip login screen" and "Skip authorization screen" boxes are checked',
-		content: null,
-	},
-	{
-		title: "Paste in the patient ID",
-		description: 'Under "Patients", paste the ID you copied above',
-		content: null,
+		content: <img src={MiscOptionsStep} alt="Misc. options step screenshot" />,
 	},
 	{
 		title: "Paste in the app's launch URL",
 		description:
-			"At the bottom of the screen, in the \"App's Launch URL\" field, paste in this app's launch URL",
-		content: <CopyField text="replacethis.url" />,
+			'Copy the URL below. Then, at the bottom of the screen in the "App\'s Launch URL" field, paste in the URL, and click the "Launch" button',
+		content: (
+			<div className="flex flex-col gap-y-2">
+				<CopyField text="replacethis.url" />
+				<img src={LaunchURLStep} alt="Launch URL step screenshot" />
+			</div>
+		),
 	},
 ];
 

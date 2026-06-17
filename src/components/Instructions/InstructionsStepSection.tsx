@@ -16,11 +16,13 @@ export default function InstructionsStepSection({
 }: InstructionsStepSectionProps) {
 	return (
 		<div>
-			<h2 className="uppercase tracking-widest">
-				<span>{stepNumber && `Step ${stepNumber}:`}</span>{" "}
-				<span>{sectionTitle}</span>
+			<h2 className="uppercase tracking-widest text-sm text-muted-foreground">
+				{stepNumber && (
+					<span className="text-primary font-semibold">Step {stepNumber}:</span>
+				)}{" "}
+				<span className="text-primary">{sectionTitle}</span>
 			</h2>
-			<Separator className="mt-2 mb-4" />
+			<Separator className="mt-2 mb-4 bg-primary/30" />
 			<div className={`flex flex-col gap-4 w-full ${mdFlexDirection}`}>
 				{children}
 			</div>

@@ -69,18 +69,24 @@ const launcherInstructions = [
 
 export default function Instructions() {
 	return (
-		<div className="m-8 md:mx-32 xl:mx-60 my-10 flex flex-col gap-y-4">
-			<h1>Chronic Disease Tracker Demo Instructions</h1>
+		<div className="m-8 md:mx-32 xl:mx-60 my-10 flex flex-col gap-y-5">
+			<h1 className="text-lg font-semibold tracking-widest text-primary uppercase">
+				Chronic Disease Tracker Demo Instructions
+			</h1>
 			<InstructionsCard title="How to Use this Demo">
-				<p className="mb-2">
+				<p className="mb-2 text-muted-foreground">
 					This is a demo of a{" "}
-					<span className="font-bold">SMART on FHIR patient portal app</span>.
-					To try it, you'll launch it through a public SMART sandbox launcher
+					<span className="font-semibold text-primary">
+						SMART on FHIR patient portal app
+					</span>
+					. To try it, you'll launch it through a public SMART sandbox launcher
 					using a synthetic patient record.{" "}
-					<span className="font-bold">No real patient data is used</span>. For
-					the best experience, use one of the patient records below.
+					<span className="font-semibold text-primary">
+						No real patient data is used
+					</span>
+					. For the best experience, use one of the patient records below.
 				</p>
-				<p>
+				<p className="text-muted-foreground">
 					Follow the steps in order; the screenshots show exactly what to select
 					and where to paste each value.
 				</p>
@@ -131,17 +137,20 @@ export default function Instructions() {
 				))}
 			</InstructionsStepSection>
 			<InstructionsStepSection sectionTitle="switching patients later">
-				<div className="flex flex-col gap-y-2">
-					<p>
+				<div className="flex flex-col gap-y-3">
+					<p className="text-muted-foreground">
 						Once inside the app, use the{" "}
-						<span className="font-bold">"How to use this demo"</span> link in
-						the footer to return to this page and relaunch with a different
-						patient ID.
+						<span className="font-semibold text-primary">
+							"How to use this demo"
+						</span>{" "}
+						link in the footer to return to this page and relaunch with a
+						different patient ID.
 					</p>
-					<p>
-						<span className="font-semibold">About this demo:</span> All patient
-						data is synthetic, generated via Synthea for demonstration purposes.
-						No real patient information is used or stored.
+					<p className="rounded-lg bg-primary/10 px-4 py-3 text-sm text-muted-foreground">
+						<span className="font-semibold text-primary">About this demo:</span>{" "}
+						All patient data is synthetic, generated via Synthea for
+						demonstration purposes. No real patient information is used or
+						stored.
 					</p>
 				</div>
 			</InstructionsStepSection>

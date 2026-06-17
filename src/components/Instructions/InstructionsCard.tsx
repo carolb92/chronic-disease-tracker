@@ -29,13 +29,13 @@ export default function InstructionsCard({
 		<Card className={width}>
 			<CardHeader>
 				<CardTitle>
-					<span className="flex gap-x-2 items-center">
+					<span className="flex gap-x-2.5 items-center">
 						{stepNumber && (
-							<div className="p-1 rounded-full bg-gray-200/50 w-6 h-6 flex justify-center items-center">
+							<span className="inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground w-6 h-6 text-xs font-semibold shrink-0">
 								{stepNumber}
-							</div>
+							</span>
 						)}
-						<span>{title}</span>
+						<span className="text-primary">{title}</span>
 					</span>
 				</CardTitle>
 				{description && <CardDescription>{description}</CardDescription>}

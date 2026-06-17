@@ -17,7 +17,8 @@ export default function InstructionsStepSection({
 	return (
 		<div>
 			<h2 className="uppercase tracking-widest">
-				{stepNumber && `Step ${stepNumber}: ${sectionTitle}`}
+				<span>{stepNumber && `Step ${stepNumber}:`}</span>{" "}
+				<span>{sectionTitle}</span>
 			</h2>
 			<Separator className="mt-2 mb-4" />
 			<div className={`flex flex-col gap-4 w-full ${mdFlexDirection}`}>

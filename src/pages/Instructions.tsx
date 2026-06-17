@@ -130,6 +130,21 @@ export default function Instructions() {
 					</InstructionsCard>
 				))}
 			</InstructionsStepSection>
+			<InstructionsStepSection sectionTitle="switching patients later">
+				<div className="flex flex-col gap-y-2">
+					<p>
+						Once inside the app, use the{" "}
+						<span className="font-bold">"How to use this demo"</span> link in
+						the footer to return to this page and relaunch with a different
+						patient ID.
+					</p>
+					<p>
+						<span className="font-semibold">About this demo:</span> All patient
+						data is synthetic, generated via Synthea for demonstration purposes.
+						No real patient information is used or stored.
+					</p>
+				</div>
+			</InstructionsStepSection>
 		</div>
 	);
 }

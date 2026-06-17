@@ -1,7 +1,6 @@
 import InstructionsCard from "@/components/Instructions/InstructionsCard";
 import InstructionsStepSection from "@/components/Instructions/InstructionsStepSection";
 import PatientCard from "@/components/Instructions/PatientCard";
-import CopyField from "@/components/global/CopyField";
 import { Button } from "@/components/ui/button";
 import { SquareArrowOutUpRight } from "lucide-react";
 import FHIRVersionStep from "../assets/images/fhir-version-step.png";
@@ -60,7 +59,12 @@ const launcherInstructions = [
 			'Copy the URL below. Then, at the bottom of the screen in the "App\'s Launch URL" field, paste in the URL, and click the "Launch" button',
 		content: (
 			<div className="flex flex-col gap-y-2">
-				<CopyField text="replacethis.url" />
+				<div className="flex items-center gap-2 rounded-lg bg-status-warn/10 px-4 py-2.5 text-sm text-status-warn">
+					<span className="font-semibold">Coming soon</span>
+					<span className="text-muted-foreground">
+						— Launch URL will be available once the app is deployed
+					</span>
+				</div>
 				<img src={LaunchURLStep} alt="Launch URL step screenshot" />
 			</div>
 		),
@@ -113,15 +117,15 @@ export default function Instructions() {
 					title="SMART App Launcher"
 					description="Opens in a new tab –– keep this page open for reference"
 					action={
-						<Button>
+						<Button asChild>
 							<a
 								href="https://launch.smarthealthit.org/"
 								target="_blank"
 								rel="noreferrer noopener"
 							>
 								Launch
+								<SquareArrowOutUpRight />
 							</a>
-							<SquareArrowOutUpRight />
 						</Button>
 					}
 				/>

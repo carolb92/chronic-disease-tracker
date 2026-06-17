@@ -23,7 +23,7 @@ export default function InstructionsStepSection({
 				<span className="text-primary">{sectionTitle}</span>
 			</h2>
 			<Separator className="mt-2 mb-4 bg-primary/30" />
-			<div className={`flex flex-col gap-4 w-full ${mdFlexDirection}`}>
+			<div className={`flex flex-col gap-4 w-full ${mdFlexDirection ?? ""}`}>
 				{children}
 			</div>
 		</div>

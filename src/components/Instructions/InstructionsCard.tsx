@@ -30,7 +30,7 @@ export default function InstructionsCard({
 			<CardHeader>
 				<CardTitle>
 					<span className="flex gap-x-2.5 items-center">
-						{stepNumber && (
+						{stepNumber != null && (
 							<span className="inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground w-6 h-6 text-xs font-semibold shrink-0">
 								{stepNumber}
 							</span>

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import FHIR from "fhirclient";
-import { calculateAge, formatDate, groupAndSortObservations } from "@/lib/utils";
+import {
+	calculateAge,
+	formatDate,
+	groupAndSortObservations,
+} from "@/lib/utils";
 import {
 	TRACKED_CONDITION_SNOMED_CODES,
 	SNOMED_TO_LOINC,
@@ -85,6 +89,17 @@ export default function useFHIRResources() {
 		),
 	);
 
+	console.log("relevant conditions: ", relevantConditions);
+
+	const relevantSNOMEDCodes = relevantConditions
+		.flatMap((entry) =>
+			entry.code?.coding?.map((item) => {
+				if (item.system === "http://snomed.info/sct") return item.code;
+			}),
+		)
+		.filter((item) => item !== undefined);
+	console.log("relevant SNOMED codes: ", relevantSNOMEDCodes);
+
 	// build a set of relevant LOINC codes from the patient's conditions
 	const ptLOINCCodes = new Set<string>();
 	relevantConditions.forEach((condition) => {
@@ -144,5 +159,6 @@ export default function useFHIRResources() {
 		gender,
 		relevantConditions,
 		conditionsErr,
+		relevantSNOMEDCodes,
 	};
 }

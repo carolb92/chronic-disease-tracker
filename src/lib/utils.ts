@@ -5,6 +5,74 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
+export type TransformedObservation = {
+	code: string;
+	display: string;
+	value: string;
+	date: string;
+};
+
+// Formats a date string to MM/DD/YYYY
+function formatDate(dateString: string): string {
+	return new Intl.DateTimeFormat("en-US", {
+		month: "2-digit",
+		day: "2-digit",
+		year: "numeric",
+	}).format(new Date(dateString));
+}
+
+// Formats a FHIR Quantity as "value unit" (e.g. "6.07 %")
+function formatValue(qty: fhir4.Quantity): string {
+	return `${qty.value?.toFixed(2)} ${qty.unit ?? ""}`.trim();
+}
+
+// Extracts display-ready fields from a FHIR Observation; handles BP component observations separately
+function transformObservation(obs: fhir4.Observation): TransformedObservation {
+	const coding = obs.code?.coding?.[0];
+	const code = coding?.code ?? "";
+	const display = coding?.display ?? "";
+	const date = obs.effectiveDateTime ? formatDate(obs.effectiveDateTime) : "";
+
+	if (obs.component) {
+		const systolic = obs.component.find((c) =>
+			c.code?.coding?.some((coding) => coding.code === "8480-6"),
+		);
+		const diastolic = obs.component.find((c) =>
+			c.code?.coding?.some((coding) => coding.code === "8462-4"),
+		);
+		const sVal = systolic?.valueQuantity?.value?.toFixed(0) ?? "—";
+		const dVal = diastolic?.valueQuantity?.value?.toFixed(0) ?? "—";
+		const unit = systolic?.valueQuantity?.unit ?? "mm[Hg]";
+		return { code, display, value: `${sVal}/${dVal} ${unit}`, date };
+	}
+
+	const value = obs.valueQuantity ? formatValue(obs.valueQuantity) : "—";
+	return { code, display, value, date };
+}
+
+// Groups observations by LOINC code and sorts each group by date, most recent first
+export function groupAndSortObservations(
+	observations: fhir4.Observation[],
+): Record<string, TransformedObservation[]> {
+	const groups: Record<string, TransformedObservation[]> = {};
+
+	for (const obs of observations) {
+		const transformed = transformObservation(obs);
+		if (!groups[transformed.code]) {
+			groups[transformed.code] = [];
+		}
+		groups[transformed.code].push(transformed);
+	}
+
+	for (const code in groups) {
+		groups[code].sort(
+			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+		);
+	}
+
+	return groups;
+}
+
 export function calculateAge(birthDate: Date) {
 	const today = new Date();
 	const bMonth = birthDate.getMonth() + 1;

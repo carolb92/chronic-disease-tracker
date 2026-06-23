@@ -3,7 +3,6 @@ import useFHIRResources from "@/hooks/useFHIRResources";
 export default function AppPage() {
 	const {
 		patient,
-		observations,
 		ptError,
 		obsError,
 		displayName,

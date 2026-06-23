@@ -16,12 +16,15 @@ export const DIABETES_LOINC_CODES = [
 	"1558-6", // Fasting glucose
 	"4548-4", // Hemoglobin A1c
 	"29463-7", // Body weight
+	"33914-3", // eGFR
+	"14959-1", // uACR (Microalbumin Creatinine Ratio)
+	"55284-4", // Blood pressure panel
 ];
 
 export const HTN_LOINC_CODES = [
 	"8480-6", // systolic BP
 	"8462-4", // diastolic BP
-	"85354-9", // Blood pressure panel (systolic and diastolic, combined panel code)
+	"55284-4", // Blood pressure panel
 	"8478-0", // mean BP
 ];
 
@@ -30,4 +33,19 @@ export const HLD_LOINC_CODES = [
 	"2093-3", // total cholesterol
 	"2085-9", // HDL
 	"2571-8", // triglycerides
+	"18262-6", // low density lipoprotein cholesterol
 ];
+
+export const SNOMED_TO_LOINC: Record<string, string[]> = {
+	"46635009": DIABETES_LOINC_CODES, // T1DM
+	"44054006": DIABETES_LOINC_CODES, // T2DM
+	"38341003": HTN_LOINC_CODES, // general HTN
+	"59621000": HTN_LOINC_CODES, // essential HTN
+	"55822004": HLD_LOINC_CODES, // general hyperlipidemia
+	"13644009": HLD_LOINC_CODES, // hypercholesterolemia
+	"398036000": HLD_LOINC_CODES, // familial hypercholesterolemia
+	"238079002": HLD_LOINC_CODES, // familial hypercholesterolemia - heterozygous
+	"238078005": HLD_LOINC_CODES, // familial hypercholesterolemia - homozygous
+	"403829002": HLD_LOINC_CODES, // familial hypercholesterolemia - LDL receptor mutation
+	"403831006": HLD_LOINC_CODES, // familial hypercholesterolemia - apolipoprotein B defect
+};

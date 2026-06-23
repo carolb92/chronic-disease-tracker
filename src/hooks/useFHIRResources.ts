@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import FHIR from "fhirclient";
-import { calculateAge } from "@/lib/utils";
+import { calculateAge, groupAndSortObservations } from "@/lib/utils";
 import {
 	TRACKED_CONDITION_SNOMED_CODES,
-	DIABETES_LOINC_CODES,
-	HTN_LOINC_CODES,
-	HLD_LOINC_CODES,
+	SNOMED_TO_LOINC,
 } from "@/lib/constants";
+import { evaluateDiabetesHedisMeasures } from "@/lib/hedis";
 
 export default function useFHIRResources() {
 	const [patient, setPatient] = useState<fhir4.Patient | null>(null);
@@ -17,9 +16,6 @@ export default function useFHIRResources() {
 	const [conditionsErr, setConditionsErr] = useState({});
 
 	const trackedConditionSet = new Set(TRACKED_CONDITION_SNOMED_CODES);
-	const DMLOINCCodesSet = new Set(DIABETES_LOINC_CODES);
-	const HTNLOINCCodesSet = new Set(HTN_LOINC_CODES);
-	const HLDLOINCCodesSet = new Set(HLD_LOINC_CODES);
 
 	useEffect(() => {
 		FHIR.oauth2.ready().then((client) => {
@@ -99,28 +95,64 @@ export default function useFHIRResources() {
 
 	console.log("relevant conditions: ", relevantConditions);
 
-	const relevantSNOMEDCodesArr = relevantConditions?.map((c) =>
-		c.code?.coding?.map((item) => item.code).flat(),
+	// build a set of relevant LOINC codes from the patient's conditions
+	const ptLOINCCodes = new Set<string>();
+	relevantConditions?.forEach((condition) => {
+		condition.code?.coding?.forEach((coding) => {
+			if (coding.code && coding.code in SNOMED_TO_LOINC) {
+				for (const loinc of SNOMED_TO_LOINC[coding.code]) {
+					ptLOINCCodes.add(loinc);
+				}
+			}
+		});
+	});
+
+	console.log("pt LOINC codes: ", ptLOINCCodes);
+
+	const relevantObservations = observations.filter((obs) =>
+		obs.code?.coding?.some(
+			(coding) =>
+				coding.system === "http://loinc.org" &&
+				coding.code &&
+				ptLOINCCodes.has(coding.code),
+		),
 	);
 
-	console.log("relevant SNOMED codes: ", relevantSNOMEDCodesArr);
+	console.log("relevant observations: ", relevantObservations);
 
-	// filter observations (by LOINC code) based on the patient's relevant conditions
-	// const ptLOINCCodes = new Set();
+	const groupedObservations = groupAndSortObservations(relevantObservations);
+	console.log("grouped observations: ", groupedObservations);
 
-	// if (relevantConditionsArr?.includes("diabetes"))
-	// 	ptLOINCCodes.add(DMLOINCCodesSet);
-	// if (relevantConditionsArr?.includes("hypertension"))
-	// 	ptLOINCCodes.add(HTN_LOINC_CODES);
-	// if (
-	// 	relevantConditionsArr?.includes("hyperlipidemia") ||
-	// 	relevantConditionsArr?.includes("hypercholesterolemia")
-	// )
-	// 	ptLOINCCodes.add(HLD_LOINC_CODES);
+	// Use the most recent observation year as the measurement year for sim data
+	const measurementYear = relevantObservations.reduce<number | null>(
+		(latest, obs) => {
+			const year = obs.effectiveDateTime
+				? new Date(obs.effectiveDateTime).getFullYear()
+				: null;
+			if (year == null) return latest;
+			return latest == null || year > latest ? year : latest;
+		},
+		null,
+	);
+
+	const hasDiabetes = relevantConditions?.some((c) =>
+		c.code?.coding?.some(
+			(coding) => coding.code === "46635009" || coding.code === "44054006",
+		),
+	);
+
+	const diabetesHedisMeasures =
+		hasDiabetes && measurementYear
+			? evaluateDiabetesHedisMeasures(relevantObservations, measurementYear)
+			: null;
+
+	console.log("HEDIS measures:", diabetesHedisMeasures);
 
 	return {
 		patient,
-		observations,
+		groupedObservations,
+		diabetesHedisMeasures,
+		measurementYear,
 		ptError,
 		obsError,
 		displayName,

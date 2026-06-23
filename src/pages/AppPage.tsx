@@ -18,26 +18,30 @@ export default function AppPage() {
 	return (
 		<div>
 			<h1>App page</h1>
-			{Object.keys(ptError).length ? (
+			{ptError ? (
 				<p>Error finding patient data</p>
 			) : (
 				<>
-					<p>{displayName}</p>
+					<p>{displayName ?? "No name available"}</p>
 					<p>{displayBDay ?? "No birth date available"}</p>
 					<span>
 						<span>{age}</span>
-						<span>{gender?.[0].toUpperCase() ?? "No gender available"}</span>
+						<span>
+							{gender?.length
+								? gender[0].toUpperCase()
+								: "No gender available"}
+						</span>
 					</span>
 				</>
 			)}
 
-			{Object.keys(conditionsErr).length ? (
+			{conditionsErr ? (
 				<p>Error finding conditions data</p>
 			) : (
 				<div>{relevantConditions?.map((c) => c.code?.text).join(", ")}</div>
 			)}
 
-			{Object.keys(obsError).length ? (
+			{obsError ? (
 				<p>Error finding observations data</p>
 			) : (
 				<div>observations go here</div>

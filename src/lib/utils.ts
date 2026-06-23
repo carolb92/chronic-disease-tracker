@@ -10,10 +10,11 @@ export type TransformedObservation = {
 	display: string;
 	value: string;
 	date: string;
+	isoDate: string;
 };
 
 // Formats a date string to MM/DD/YYYY
-function formatDate(dateString: string): string {
+export function formatDate(dateString: string): string {
 	return new Intl.DateTimeFormat("en-US", {
 		month: "2-digit",
 		day: "2-digit",
@@ -31,7 +32,8 @@ function transformObservation(obs: fhir4.Observation): TransformedObservation {
 	const coding = obs.code?.coding?.[0];
 	const code = coding?.code ?? "";
 	const display = coding?.display ?? "";
-	const date = obs.effectiveDateTime ? formatDate(obs.effectiveDateTime) : "";
+	const isoDate = obs.effectiveDateTime ?? "";
+	const date = isoDate ? formatDate(isoDate) : "";
 
 	if (obs.component) {
 		const systolic = obs.component.find((c) =>
@@ -43,11 +45,11 @@ function transformObservation(obs: fhir4.Observation): TransformedObservation {
 		const sVal = systolic?.valueQuantity?.value?.toFixed(0) ?? "—";
 		const dVal = diastolic?.valueQuantity?.value?.toFixed(0) ?? "—";
 		const unit = systolic?.valueQuantity?.unit ?? "mm[Hg]";
-		return { code, display, value: `${sVal}/${dVal} ${unit}`, date };
+		return { code, display, value: `${sVal}/${dVal} ${unit}`, date, isoDate };
 	}
 
 	const value = obs.valueQuantity ? formatValue(obs.valueQuantity) : "—";
-	return { code, display, value, date };
+	return { code, display, value, date, isoDate };
 }
 
 // Groups observations by LOINC code and sorts each group by date, most recent first
@@ -66,7 +68,7 @@ export function groupAndSortObservations(
 
 	for (const code in groups) {
 		groups[code].sort(
-			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+			(a, b) => new Date(b.isoDate).getTime() - new Date(a.isoDate).getTime(),
 		);
 	}
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import FHIR from "fhirclient";
-import { calculateAge, groupAndSortObservations } from "@/lib/utils";
+import { calculateAge, formatDate, groupAndSortObservations } from "@/lib/utils";
 import {
 	TRACKED_CONDITION_SNOMED_CODES,
 	SNOMED_TO_LOINC,
@@ -10,10 +10,10 @@ import { evaluateDiabetesHedisMeasures } from "@/lib/hedis";
 export default function useFHIRResources() {
 	const [patient, setPatient] = useState<fhir4.Patient | null>(null);
 	const [observations, setObservations] = useState<fhir4.Observation[]>([]);
-	const [ptError, setPtError] = useState({});
-	const [obsError, setObsError] = useState({});
+	const [ptError, setPtError] = useState<Error | null>(null);
+	const [obsError, setObsError] = useState<Error | null>(null);
 	const [conditions, setConditions] = useState<fhir4.Condition[]>([]);
-	const [conditionsErr, setConditionsErr] = useState({});
+	const [conditionsErr, setConditionsErr] = useState<Error | null>(null);
 
 	const trackedConditionSet = new Set(TRACKED_CONDITION_SNOMED_CODES);
 
@@ -45,7 +45,6 @@ export default function useFHIRResources() {
 			client
 				.request("/Observation?patient=" + client.patient.id, { flat: true })
 				.then((obs) => {
-					// console.log("observations: ", obs);
 					setObservations(obs);
 				})
 				.catch((err) => {
@@ -59,45 +58,36 @@ export default function useFHIRResources() {
 	const name = patient ? patient.name : null;
 	const birthDate = patient ? patient.birthDate : null;
 	const gender = patient ? patient.gender : null;
-	const officialName = name?.find((item) => item.use === "official");
-	const displayName = `${officialName?.family}, ${officialName?.given?.join(" ")}`;
+	const bestName =
+		name?.find((item) => item.use === "official") ??
+		name?.find((item) => item.use === "usual") ??
+		name?.[0];
+	const displayName = bestName
+		? `${bestName.family}, ${bestName.given?.join(" ")}`
+		: null;
 	let d;
 	if (birthDate) d = new Date(birthDate);
-	const displayBDay = d
-		? new Intl.DateTimeFormat("en-US", {
-				month: "2-digit",
-				day: "2-digit",
-				year: "numeric",
-			}).format(d)
-		: null;
+	const displayBDay = d ? formatDate(birthDate!) : null;
 
 	const age = d ? calculateAge(d) : null;
 
 	// CONDITIONS
-	// filter for active conditions
-	const activeConditions = conditions
-		? conditions.filter((c) =>
-				c.clinicalStatus?.coding?.find((item) => item.code === "active"),
-			)
-		: null;
+	const activeConditions = conditions.filter((c) =>
+		c.clinicalStatus?.coding?.find((item) => item.code === "active"),
+	);
 
-	// filter active conditions for conditions whose SNOMED codes are in our trackedConditionsSet
-	const relevantConditions = conditions
-		? activeConditions?.filter((entry) =>
-				entry.code?.coding?.some(
-					(item) =>
-						item.system === "http://snomed.info/sct" &&
-						item.code &&
-						trackedConditionSet.has(item.code),
-				),
-			)
-		: null;
-
-	console.log("relevant conditions: ", relevantConditions);
+	const relevantConditions = activeConditions.filter((entry) =>
+		entry.code?.coding?.some(
+			(item) =>
+				item.system === "http://snomed.info/sct" &&
+				item.code &&
+				trackedConditionSet.has(item.code),
+		),
+	);
 
 	// build a set of relevant LOINC codes from the patient's conditions
 	const ptLOINCCodes = new Set<string>();
-	relevantConditions?.forEach((condition) => {
+	relevantConditions.forEach((condition) => {
 		condition.code?.coding?.forEach((coding) => {
 			if (coding.code && coding.code in SNOMED_TO_LOINC) {
 				for (const loinc of SNOMED_TO_LOINC[coding.code]) {
@@ -106,8 +96,6 @@ export default function useFHIRResources() {
 			}
 		});
 	});
-
-	console.log("pt LOINC codes: ", ptLOINCCodes);
 
 	const relevantObservations = observations.filter((obs) =>
 		obs.code?.coding?.some(
@@ -118,10 +106,7 @@ export default function useFHIRResources() {
 		),
 	);
 
-	console.log("relevant observations: ", relevantObservations);
-
 	const groupedObservations = groupAndSortObservations(relevantObservations);
-	console.log("grouped observations: ", groupedObservations);
 
 	// Use the most recent observation year as the measurement year for sim data
 	const measurementYear = relevantObservations.reduce<number | null>(
@@ -135,7 +120,7 @@ export default function useFHIRResources() {
 		null,
 	);
 
-	const hasDiabetes = relevantConditions?.some((c) =>
+	const hasDiabetes = relevantConditions.some((c) =>
 		c.code?.coding?.some(
 			(coding) => coding.code === "46635009" || coding.code === "44054006",
 		),
@@ -145,8 +130,6 @@ export default function useFHIRResources() {
 		hasDiabetes && measurementYear
 			? evaluateDiabetesHedisMeasures(relevantObservations, measurementYear)
 			: null;
-
-	console.log("HEDIS measures:", diabetesHedisMeasures);
 
 	return {
 		patient,

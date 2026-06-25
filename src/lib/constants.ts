@@ -12,6 +12,26 @@ export const TRACKED_CONDITION_SNOMED_CODES = [
 	"403831006", // Familial hypercholesterolemia due to genetic defect of apolipoprotein B
 ];
 
+export const DM_SNOMED_CODES = [
+	"46635009", //T1DM
+	"44054006", //T2DM
+];
+
+export const HTN_SNOMED_CODES = [
+	"38341003", // general HTN (hypertensive disorder)
+	"59621000", // essential HTN
+];
+
+export const HLD_SNOMED_CODES = [
+	"55822004", // general hyperlipidemia
+	"13644009", // hypercholesterolemia (disorder)
+	"398036000", // familial hypercholesterolemia
+	"238079002", // Familial hypercholesterolemia - heterozygous
+	"238078005", // Familial hypercholesterolemia - homozygous
+	"403829002", // Familial hypercholesterolemia due to heterozygous low density lipoprotein receptor mutation
+	"403831006", // Familial hypercholesterolemia due to genetic defect of apolipoprotein B
+];
+
 export const DIABETES_LOINC_CODES = [
 	"1558-6", // Fasting glucose
 	"4548-4", // Hemoglobin A1c

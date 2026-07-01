@@ -53,7 +53,10 @@ export const HLD_LOINC_CODES = [
 	"2093-3", // total cholesterol
 	"2085-9", // HDL
 	"2571-8", // triglycerides
+	"47210-0", // serum/plasma triglycerides fasting
+	"3043-7", // whole blood triglycerides
 	"18262-6", // low density lipoprotein cholesterol
+	"43396-1", // non-HDL cholesterol
 ];
 
 export const SNOMED_TO_LOINC: Record<string, string[]> = {

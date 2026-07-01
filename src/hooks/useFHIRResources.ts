@@ -8,6 +8,8 @@ import {
 import {
 	TRACKED_CONDITION_SNOMED_CODES,
 	SNOMED_TO_LOINC,
+	DM_SNOMED_CODES,
+	DIABETES_LOINC_CODES,
 } from "@/lib/constants";
 import { evaluateDiabetesHedisMeasures } from "@/lib/hedis";
 
@@ -123,23 +125,29 @@ export default function useFHIRResources() {
 
 	const groupedObservations = groupAndSortObservations(relevantObservations);
 
-	// Use the most recent observation year as the measurement year for sim data
-	const measurementYear = relevantObservations.reduce<number | null>(
-		(latest, obs) => {
+	const hasDiabetes = relevantSNOMEDCodes.some((code) =>
+		DM_SNOMED_CODES.includes(code),
+	);
+
+	// Scope measurement year to diabetes observations only so HTN/HLD readings
+	// from a later year don't push the window past the patient's actual DM labs
+	const diabetesLOINCSet = new Set(DIABETES_LOINC_CODES);
+	const measurementYear = relevantObservations
+		.filter((obs) =>
+			obs.code?.coding?.some(
+				(c) =>
+					c.system === "http://loinc.org" &&
+					c.code &&
+					diabetesLOINCSet.has(c.code),
+			),
+		)
+		.reduce<number | null>((latest, obs) => {
 			const year = obs.effectiveDateTime
 				? new Date(obs.effectiveDateTime).getFullYear()
 				: null;
 			if (year == null) return latest;
 			return latest == null || year > latest ? year : latest;
-		},
-		null,
-	);
-
-	const hasDiabetes = relevantConditions.some((c) =>
-		c.code?.coding?.some(
-			(coding) => coding.code === "46635009" || coding.code === "44054006",
-		),
-	);
+		}, null);
 
 	const diabetesHedisMeasures =
 		hasDiabetes && measurementYear

@@ -7,6 +7,8 @@ import NonHDLChart from "@/components/charts/cholesterol/NonHDLChart";
 
 // Will be derived from ASCVD risk in the future
 const LDL_GOAL = 100; // mg/dL
+//TODO: double check bad LDL threshold
+const LDL_BAD_THRESHOLD = LDL_GOAL + 30; // mg/dL — borderline high per ACC/AHA
 // reference for non-HDL goal: https://www.urmc.rochester.edu/encyclopedia/content?contenttypeid=167&contentid=lipid_panel_nonhdl
 const NON_HDL_GOAL = LDL_GOAL + 30; // mg/dL
 
@@ -35,11 +37,14 @@ export default function CholesterolTabContent({
 		? (() => {
 				const totalObs = groupedObservations["2093-3"] ?? [];
 				const hdlByDate = new Map(
-					(groupedObservations["2085-9"] ?? []).map((o) => [o.isoDate, o]),
+					(groupedObservations["2085-9"] ?? []).map((o) => [
+						o.isoDate.slice(0, 10),
+						o,
+					]),
 				);
 				return totalObs
 					.filter((total) => {
-						const hdl = hdlByDate.get(total.isoDate);
+						const hdl = hdlByDate.get(total.isoDate.slice(0, 10));
 						return (
 							total.numericValue != null &&
 							hdl?.numericValue != null &&
@@ -48,7 +53,7 @@ export default function CholesterolTabContent({
 						);
 					})
 					.map((total) => {
-						const hdl = hdlByDate.get(total.isoDate)!;
+						const hdl = hdlByDate.get(total.isoDate.slice(0, 10))!;
 						const nonHDLValue = total.numericValue! - hdl.numericValue!;
 						return {
 							code: "derived-non-hdl",
@@ -70,9 +75,9 @@ export default function CholesterolTabContent({
 	const ldlStatus: MetricStatus =
 		latestLDL?.numericValue == null
 			? "neutral"
-			: latestLDL.numericValue < 100
+			: latestLDL.numericValue < LDL_GOAL
 				? "good"
-				: latestLDL.numericValue >= 130
+				: latestLDL.numericValue >= LDL_BAD_THRESHOLD
 					? "bad"
 					: "neutral";
 
@@ -134,6 +139,7 @@ export default function CholesterolTabContent({
 			<div className="grid grid-cols-3 gap-3">
 				{metrics.map(({ label, value, subtext, status }) => (
 					<MetricCard
+						key={label}
 						label={label}
 						value={value}
 						subtext={subtext}

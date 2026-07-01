@@ -30,7 +30,7 @@ export default function DiabetesCareChecklist({ measures }: Props) {
 					regular eye exams - are less likely to develop complications like
 					vision loss, kidney disease, and heart disease.
 				</p>
-				<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 					{measures.map((m) => (
 						<Card key={m.name}>
 							<CardContent className="pt-2">

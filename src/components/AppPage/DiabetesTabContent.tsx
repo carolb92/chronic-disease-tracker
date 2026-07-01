@@ -38,7 +38,7 @@ export default function DiabetesTabContent({
 	const glucoseStatus: MetricStatus =
 		latestGlucose?.numericValue == null
 			? "neutral"
-			: latestGlucose.numericValue < 100
+			: latestGlucose.numericValue >= 80 && latestGlucose.numericValue < 130
 				? "good"
 				: "bad";
 

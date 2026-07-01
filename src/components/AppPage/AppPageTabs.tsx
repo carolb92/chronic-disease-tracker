@@ -1,17 +1,27 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Droplet, HeartPulse, Apple } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	DM_SNOMED_CODES,
 	HTN_SNOMED_CODES,
 	HLD_SNOMED_CODES,
 } from "@/lib/constants";
 import { useState } from "react";
+import type { TransformedObservation } from "@/lib/utils";
+import type { HedisMeasureResult } from "@/lib/hedis";
+import DiabetesTabContent from "./DiabetesTabContent";
+import HypertensionTabContent from "./HypertensionTabContent";
+import CholesterolTabContent from "./CholesterolTabContent";
 
 export default function AppPageTabs({
 	SNOMEDCodes,
+	groupedObservations,
+	diabetesHedisMeasures,
+	gender,
 }: {
 	SNOMEDCodes: string[];
+	groupedObservations: Record<string, TransformedObservation[]>;
+	diabetesHedisMeasures: HedisMeasureResult[] | null;
+	gender: string | null | undefined;
 }) {
 	const [defaultTab, setDefaultTab] = useState("");
 
@@ -39,7 +49,6 @@ export default function AppPageTabs({
 	const activeTabs = TAB_CONFIG.filter((tab) =>
 		tab.snomedCodes.some((code) => SNOMEDCodes.includes(code)),
 	);
-	console.log("active tabs: ", activeTabs);
 
 	const activeTab = defaultTab || activeTabs[0]?.value || "";
 
@@ -47,7 +56,11 @@ export default function AppPageTabs({
 		<Tabs value={activeTab} onValueChange={setDefaultTab}>
 			<TabsList variant="line" className="w-full justify-start">
 				{activeTabs.map(({ value, icon: Icon, display }) => (
-					<TabsTrigger value={value} className="gap-1.5" key={value}>
+					<TabsTrigger
+						value={value}
+						className="gap-1.5 after:bg-primary"
+						key={value}
+					>
 						<Icon className="text-primary size-4" />
 						<span className="text-primary">{display}</span>
 					</TabsTrigger>
@@ -55,38 +68,20 @@ export default function AppPageTabs({
 			</TabsList>
 			{activeTabs.map((tab) => (
 				<TabsContent value={tab.value} key={tab.value}>
-					<TabPlaceholder label={tab.display} />
+					{tab.value === "diabetes" && (
+						<DiabetesTabContent
+							groupedObservations={groupedObservations}
+							diabetesHedisMeasures={diabetesHedisMeasures}
+						/>
+					)}
+					{tab.value === "hypertension" && (
+						<HypertensionTabContent groupedObservations={groupedObservations} />
+					)}
+					{tab.value === "hyperlipidemia" && (
+						<CholesterolTabContent groupedObservations={groupedObservations} gender={gender} />
+					)}
 				</TabsContent>
 			))}
 		</Tabs>
-	);
-}
-
-function TabPlaceholder({ label }: { label: string }) {
-	return (
-		<div className="flex flex-col gap-4 pt-1">
-			<div className="grid grid-cols-3 gap-3">
-				{[1, 2, 3].map((i) => (
-					<div key={i} className="rounded-lg bg-metric p-4">
-						<div className="mb-2 h-3 w-16 rounded bg-muted-foreground/15" />
-						<div className="h-6 w-12 rounded bg-muted-foreground/15" />
-						<div className="mt-2 h-2.5 w-24 rounded bg-muted-foreground/10" />
-					</div>
-				))}
-			</div>
-
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-sm text-muted-foreground">
-						{label} — charts coming soon
-					</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-border">
-						<span className="text-xs text-muted-foreground/60">Chart area</span>
-					</div>
-				</CardContent>
-			</Card>
-		</div>
 	);
 }

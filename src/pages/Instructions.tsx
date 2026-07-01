@@ -18,13 +18,18 @@ type Patients = {
 const patients: Patients[] = [
 	{
 		ptName: "Conn, Almeda",
-		description: "58F | Diabetes, Hypertension",
+		description: "83F | Diabetes, Hypertension",
 		id: "5f6d256f-fc32-4b10-ba9c-51aba830cfa4",
 	},
 	{
 		ptName: "Trevino, Eduardo",
 		description: "55M | Hyperlipidemia",
 		id: "b89834ac-a767-4563-890b-cac9d55adb15",
+	},
+	{
+		ptName: "Gibson, Margery",
+		description: "77 F | Hyperlipidemia, Hypertension, Diabetes",
+		id: "9bf59715-246f-4ce2-85a6-58c1757f8d21",
 	},
 ];
 

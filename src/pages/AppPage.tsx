@@ -15,6 +15,8 @@ export default function AppPage() {
 		relevantConditions,
 		conditionsErr,
 		relevantSNOMEDCodes,
+		groupedObservations,
+		diabetesHedisMeasures,
 	} = useFHIRResources();
 
 	if (!patient)
@@ -80,7 +82,12 @@ export default function AppPage() {
 				</Card>
 			)}
 
-			<AppPageTabs SNOMEDCodes={relevantSNOMEDCodes} />
+			<AppPageTabs
+					SNOMEDCodes={relevantSNOMEDCodes}
+					groupedObservations={groupedObservations}
+					diabetesHedisMeasures={diabetesHedisMeasures}
+					gender={gender}
+				/>
 
 			{obsError && (
 				<p className="text-sm text-destructive">

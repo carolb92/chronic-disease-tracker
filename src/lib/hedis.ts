@@ -14,9 +14,7 @@ function getMostRecentInYear(
 ): fhir4.Observation | undefined {
 	return observations
 		.filter((obs) => {
-			const matchesCode = obs.code?.coding?.some(
-				(c) => c.code === loincCode,
-			);
+			const matchesCode = obs.code?.coding?.some((c) => c.code === loincCode);
 			const date = obs.effectiveDateTime
 				? new Date(obs.effectiveDateTime)
 				: null;
@@ -116,8 +114,16 @@ function evaluateKidneyEvaluation(
 	observations: fhir4.Observation[],
 	measurementYear: number,
 ): HedisMeasureResult {
-	const hasEGFR = hasObservationInYear(observations, "33914-3", measurementYear);
-	const hasUACR = hasObservationInYear(observations, "14959-1", measurementYear);
+	const hasEGFR = hasObservationInYear(
+		observations,
+		"33914-3",
+		measurementYear,
+	);
+	const hasUACR = hasObservationInYear(
+		observations,
+		"14959-1",
+		measurementYear,
+	);
 
 	if (hasEGFR && hasUACR) {
 		return {
@@ -127,10 +133,7 @@ function evaluateKidneyEvaluation(
 		};
 	}
 
-	const missing = [
-		!hasEGFR ? "eGFR" : null,
-		!hasUACR ? "uACR" : null,
-	]
+	const missing = [!hasEGFR ? "eGFR" : null, !hasUACR ? "uACR" : null]
 		.filter(Boolean)
 		.join(" and ");
 
@@ -150,5 +153,10 @@ export function evaluateDiabetesHedisMeasures(
 		evaluateBPControl(observations, measurementYear),
 		evaluateA1cControl(observations, measurementYear),
 		evaluateKidneyEvaluation(observations, measurementYear),
+		{
+			name: "Eye Exam",
+			status: "insufficient-data",
+			detail: `Missing eye exam records in ${measurementYear}`,
+		},
 	];
 }

@@ -11,6 +11,10 @@ export type TransformedObservation = {
 	value: string;
 	date: string;
 	isoDate: string;
+	numericValue?: number;
+	unit?: string;
+	systolic?: number;
+	diastolic?: number;
 };
 
 // Formats a date string to MM/DD/YYYY
@@ -36,20 +40,28 @@ function transformObservation(obs: fhir4.Observation): TransformedObservation {
 	const date = isoDate ? formatDate(isoDate) : "";
 
 	if (obs.component) {
-		const systolic = obs.component.find((c) =>
+		const systolicComp = obs.component.find((c) =>
 			c.code?.coding?.some((coding) => coding.code === "8480-6"),
 		);
-		const diastolic = obs.component.find((c) =>
+		const diastolicComp = obs.component.find((c) =>
 			c.code?.coding?.some((coding) => coding.code === "8462-4"),
 		);
-		const sVal = systolic?.valueQuantity?.value?.toFixed(0) ?? "—";
-		const dVal = diastolic?.valueQuantity?.value?.toFixed(0) ?? "—";
-		const unit = systolic?.valueQuantity?.unit ?? "mm[Hg]";
-		return { code, display, value: `${sVal}/${dVal} ${unit}`, date, isoDate };
+		const sNum = systolicComp?.valueQuantity?.value;
+		const dNum = diastolicComp?.valueQuantity?.value;
+		const sVal = sNum?.toFixed(0) ?? "—";
+		const dVal = dNum?.toFixed(0) ?? "—";
+		const unit = systolicComp?.valueQuantity?.unit ?? "mm[Hg]";
+		return {
+			code, display,
+			value: `${sVal}/${dVal} ${unit}`,
+			date, isoDate,
+			systolic: sNum,
+			diastolic: dNum,
+		};
 	}
 
 	const value = obs.valueQuantity ? formatValue(obs.valueQuantity) : "—";
-	return { code, display, value, date, isoDate };
+	return { code, display, value, date, isoDate, numericValue: obs.valueQuantity?.value, unit: obs.valueQuantity?.unit };
 }
 
 // Groups observations by LOINC code and sorts each group by date, most recent first

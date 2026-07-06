@@ -15,7 +15,10 @@ import {
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransformedObservation } from "@/lib/utils";
-import { formatXDate, makeGoalDots } from "@/components/charts/shared/chartUtils";
+import {
+	formatXDate,
+	makeGoalDots,
+} from "@/components/charts/shared/chartUtils";
 
 type Props = {
 	observations: TransformedObservation[];
@@ -31,7 +34,8 @@ const Y_MIN = 40;
 
 export default function NonHDLChart({ observations, goal, isDerived }: Props) {
 	const latest = observations[0];
-	const atGoal = latest?.numericValue != null ? latest.numericValue <= goal : null;
+	const atGoal =
+		latest?.numericValue != null ? latest.numericValue <= goal : null;
 
 	const data = observations
 		.slice()
@@ -70,11 +74,12 @@ export default function NonHDLChart({ observations, goal, isDerived }: Props) {
 						</span>
 					)}
 				</div>
-				<p className="text-xs text-muted-foreground/70">
-					LDL plus all other particles that can build up in your arteries — a broader measure of cardiovascular risk than LDL alone
+				<p className="text-xs text-muted-foreground">
+					LDL plus all other particles that can build up in your arteries — a
+					broader measure of cardiovascular risk than LDL alone
 				</p>
 				{isDerived && (
-					<p className="text-xs text-muted-foreground/50 italic">
+					<p className="text-xs text-muted-foreground italic">
 						Calculated from your lipid panel (total cholesterol − HDL)
 					</p>
 				)}
@@ -82,7 +87,10 @@ export default function NonHDLChart({ observations, goal, isDerived }: Props) {
 			<CardContent>
 				{data.length > 0 ? (
 					<ChartContainer config={chartConfig} className="h-64 w-full">
-						<LineChart data={data} margin={{ top: 8, right: 60, left: 0, bottom: 0 }}>
+						<LineChart
+							data={data}
+							margin={{ top: 8, right: 60, left: 0, bottom: 0 }}
+						>
 							<ReferenceArea
 								y1={Y_MIN}
 								y2={goal}
@@ -114,7 +122,9 @@ export default function NonHDLChart({ observations, goal, isDerived }: Props) {
 							<ChartTooltip
 								content={
 									<ChartTooltipContent
-										formatter={(value) => [`${Math.round(Number(value))} mg/dL`]}
+										formatter={(value) => [
+											`${Math.round(Number(value))} mg/dL`,
+										]}
 									/>
 								}
 							/>
@@ -143,8 +153,13 @@ export default function NonHDLChart({ observations, goal, isDerived }: Props) {
 						</LineChart>
 					</ChartContainer>
 				) : (
-					<div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-						No non-HDL data available
+					<div className="flex h-48 flex-col items-center justify-center gap-2 text-center px-6">
+						<p className="text-muted-foreground">No non-HDL data available</p>
+						<p className="text-dm text-muted-foreground/75 max-w-84">
+							Non-HDL cholesterol is calculated from total cholesterol and HDL
+							measured on the same day. No matching lab results were found in
+							your record.
+						</p>
 					</div>
 				)}
 			</CardContent>

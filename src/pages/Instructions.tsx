@@ -17,9 +17,9 @@ type Patients = {
 
 const patients: Patients[] = [
 	{
-		ptName: "Conn, Almeda",
-		description: "83F | Diabetes, Hypertension",
-		id: "5f6d256f-fc32-4b10-ba9c-51aba830cfa4",
+		ptName: "Moen, Twyla",
+		description: "80 F | Diabetes, Hypertension",
+		id: "186ff984-f437-4817-8d35-0997a8b7f405",
 	},
 	{
 		ptName: "Trevino, Eduardo",
@@ -27,9 +27,9 @@ const patients: Patients[] = [
 		id: "b89834ac-a767-4563-890b-cac9d55adb15",
 	},
 	{
-		ptName: "Gibson, Margery",
-		description: "77 F | Hyperlipidemia, Hypertension, Diabetes",
-		id: "9bf59715-246f-4ce2-85a6-58c1757f8d21",
+		ptName: "Kertzmann, Idalia",
+		description: "84 F | Hyperlipidemia",
+		id: "7e60f506-9ef8-4959-9362-74f7d666f912",
 	},
 ];
 
@@ -80,7 +80,7 @@ export default function Instructions() {
 	return (
 		<div className="m-8 md:mx-32 xl:mx-60 my-10 flex flex-col gap-y-5">
 			<h1 className="text-lg font-semibold tracking-widest text-primary uppercase">
-				Chronic Disease Tracker Demo Instructions
+				MyHealth Trends Demo Instructions
 			</h1>
 			<InstructionsCard title="How to Use this Demo">
 				<p className="mb-2 text-muted-foreground">

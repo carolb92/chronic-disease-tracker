@@ -34,6 +34,9 @@ export const HLD_SNOMED_CODES = [
 
 export const DIABETES_LOINC_CODES = [
 	"1558-6", // Fasting glucose
+	"2345-7", // Glucose [Mass/volume] in Serum or Plasma (BMP)
+	"2339-0", // Glucose [Mass/volume] in Blood (BMP)
+	"24321-2", // full BMP
 	"4548-4", // Hemoglobin A1c
 	"29463-7", // Body weight
 	"33914-3", // eGFR

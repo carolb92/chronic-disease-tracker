@@ -18,6 +18,7 @@ import type { TransformedObservation } from "@/lib/utils";
 import {
 	formatXDate,
 	makeGoalDots,
+	niceTicks,
 } from "@/components/charts/shared/chartUtils";
 
 type Props = {
@@ -47,8 +48,11 @@ export default function HDLChart({ observations, gender }: Props) {
 		data.length > 0 ? Math.min(...data.map((d) => d.value)) : goal - 20;
 	const rawMax =
 		data.length > 0 ? Math.max(...data.map((d) => d.value)) : goal + 30;
-	const yMin = Math.max(0, Math.min(rawMin - 5, goal - 15));
-	const yMax = Math.max(rawMax + 10, goal + 25);
+	const paddedMin = Math.max(0, Math.min(rawMin - 5, goal - 15));
+	const paddedMax = Math.max(rawMax + 10, goal + 25);
+	const yTicks = niceTicks(paddedMin, paddedMax);
+	const yMin = yTicks[0];
+	const yMax = yTicks[yTicks.length - 1];
 
 	const { dot, activeDot } = makeGoalDots(goal, "gte");
 
@@ -77,7 +81,7 @@ export default function HDLChart({ observations, gender }: Props) {
 					)}
 				</div>
 				{/* //TODO: double check this */}
-				<p className="text-xs text-muted-foreground/70">
+				<p className="text-xs text-muted-foreground">
 					HDL cholesterol helps your body remove excess LDL ("bad") cholesterol
 					–– a higher value is better
 				</p>
@@ -121,8 +125,10 @@ export default function HDLChart({ observations, gender }: Props) {
 							<YAxis
 								tick={{ fontSize: 10 }}
 								domain={[yMin, yMax]}
+								ticks={yTicks}
 								axisLine={false}
 								tickLine={false}
+								tickFormatter={(v) => Math.round(v).toString()}
 							/>
 							<ChartTooltip
 								content={

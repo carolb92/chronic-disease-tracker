@@ -1,3 +1,22 @@
+// Computes ticks at a "nice" interval such that both min and max land exactly
+// on a tick — preventing Recharts from appending a stray domain-boundary label.
+export function niceTicks(min: number, max: number, targetCount = 5): number[] {
+	const span = max - min;
+	if (span === 0) return [min];
+	const rawStep = span / (targetCount - 1);
+	const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+	const step =
+		[1, 2, 2.5, 5, 10].map((f) => f * magnitude).find((s) => s >= rawStep) ??
+		magnitude * 10;
+	const lo = Math.floor(min / step) * step;
+	const hi = Math.ceil(max / step) * step;
+	const ticks: number[] = [];
+	for (let t = lo; t <= hi + step * 0.001; t += step) {
+		ticks.push(Math.round(t));
+	}
+	return ticks;
+}
+
 export type DotProps = {
 	cx?: number;
 	cy?: number;

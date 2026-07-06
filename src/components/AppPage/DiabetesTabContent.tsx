@@ -4,14 +4,12 @@ import MetricCard, { type MetricStatus } from "./MetricCard";
 import A1cChart from "@/components/charts/diabetes/A1cChart";
 import GlucoseChart, { type GlucoseType } from "@/components/charts/diabetes/GlucoseChart";
 import DiabetesCareChecklist from "@/components/charts/diabetes/DiabetesCareChecklist";
+import { RANDOM_GLUCOSE_CODES } from "@/lib/constants";
 
 type Props = {
 	groupedObservations: Record<string, TransformedObservation[]>;
 	diabetesHedisMeasures: HedisMeasureResult[] | null;
 };
-
-// BMP glucose codes in preference order
-const RANDOM_GLUCOSE_CODES = ["2345-7", "2339-0"];
 
 export default function DiabetesTabContent({
 	groupedObservations,

@@ -8,6 +8,7 @@ import LaunchTypeStep from "../assets/images/launch-type-step.png";
 import LaunchURLStep from "../assets/images/launch-url-step.png";
 import MiscOptionsStep from "../assets/images/misc-options-step.png";
 import PatientIDStep from "../assets/images/patient-id-step.png";
+import CopyField from "@/components/global/CopyField";
 
 type Patients = {
 	ptName: string;
@@ -64,12 +65,7 @@ const launcherInstructions = [
 			'Copy the URL below. Then, at the bottom of the screen in the "App\'s Launch URL" field, paste in the URL, and click the "Launch" button',
 		content: (
 			<div className="flex flex-col gap-y-2">
-				<div className="flex items-center gap-2 rounded-lg bg-status-warn/10 px-4 py-2.5 text-sm text-status-warn">
-					<span className="font-semibold">Coming soon</span>
-					<span className="text-muted-foreground">
-						— Launch URL will be available once the app is deployed
-					</span>
-				</div>
+				<CopyField text="https://chronic-disease-tracker.vercel.app/launch" />
 				<img src={LaunchURLStep} alt="Launch URL step screenshot" />
 			</div>
 		),

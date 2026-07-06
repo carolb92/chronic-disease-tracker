@@ -76,7 +76,8 @@ function evaluateBPControl(
 	};
 }
 
-// HbA1c: most recent reading in measurement year; <8% = good control, >9% = poor control
+export const A1C_GOAL = 7; // % — at goal when below this value
+
 function evaluateA1cControl(
 	observations: fhir4.Observation[],
 	measurementYear: number,
@@ -92,21 +93,15 @@ function evaluateA1cControl(
 	}
 
 	const value = a1cObs.valueQuantity.value;
-	let status: MeasureStatus;
-	let detail: string;
+	const atGoal = value < A1C_GOAL;
 
-	if (value < 8) {
-		status = "met";
-		detail = `Good control: ${value.toFixed(1)}% (<8%)`;
-	} else if (value >= 8 && value <= 9) {
-		status = "not-met";
-		detail = `Borderline: ${value.toFixed(1)}% (≥8%, ≤9%)`;
-	} else {
-		status = "not-met";
-		detail = `Poor control: ${value.toFixed(1)}% (>9%)`;
-	}
-
-	return { name: "HbA1c Control", status, detail };
+	return {
+		name: "HbA1c Control",
+		status: atGoal ? "met" : "not-met",
+		detail: atGoal
+			? `At goal: ${value.toFixed(1)}% (<${A1C_GOAL}%)`
+			: `Above goal: ${value.toFixed(1)}% (≥${A1C_GOAL}%)`,
+	};
 }
 
 // Kidney Health Evaluation: both eGFR and uACR must be performed in the measurement year

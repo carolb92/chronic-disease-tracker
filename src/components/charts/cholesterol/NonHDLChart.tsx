@@ -18,6 +18,7 @@ import type { TransformedObservation } from "@/lib/utils";
 import {
 	formatXDate,
 	makeGoalDots,
+	niceTicks,
 } from "@/components/charts/shared/chartUtils";
 
 type Props = {
@@ -43,10 +44,12 @@ export default function NonHDLChart({ observations, goal, isDerived }: Props) {
 		.filter((o) => o.numericValue != null)
 		.map((o) => ({ date: o.date, value: o.numericValue as number }));
 
-	const yMax =
+	const paddedMax =
 		data.length > 0
 			? Math.max(...data.map((d) => d.value), goal + 30) + 20
 			: goal + 70;
+	const yTicks = niceTicks(Y_MIN, paddedMax);
+	const yMax = yTicks[yTicks.length - 1];
 
 	const { dot, activeDot } = makeGoalDots(goal, "lte");
 
@@ -116,8 +119,10 @@ export default function NonHDLChart({ observations, goal, isDerived }: Props) {
 							<YAxis
 								tick={{ fontSize: 10 }}
 								domain={[Y_MIN, yMax]}
+								ticks={yTicks}
 								axisLine={false}
 								tickLine={false}
+								tickFormatter={(v) => Math.round(v).toString()}
 							/>
 							<ChartTooltip
 								content={

@@ -19,6 +19,12 @@ const accentBorder: Record<MetricStatus, string> = {
 	bad: "border-l-destructive/70",
 };
 
+const bgTint: Record<MetricStatus, string> = {
+	good: "bg-status-ok/10",
+	neutral: "bg-card",
+	bad: "bg-destructive/8",
+};
+
 export default function MetricCard({
 	label,
 	value,
@@ -27,12 +33,16 @@ export default function MetricCard({
 }: Props) {
 	return (
 		<div
-			className={`rounded-lg border border-primary/20 border-l-3 ${accentBorder[status]} bg-card p-4`}
+			className={`rounded-lg border border-primary/20 border-l-3 ${accentBorder[status]} ${bgTint[status]} p-4`}
 		>
 			<p className="mb-2 text-sm font-medium text-muted-foreground">{label}</p>
-			<p className={`text-xl font-semibold ${valueColor[status]}`}>{value}</p>
+			<p
+				className={`font-mono tabular-nums text-xl font-semibold ${valueColor[status]}`}
+			>
+				{value}
+			</p>
 			{subtext && (
-				<p className="mt-1 text-xs text-muted-foreground/70">{subtext}</p>
+				<p className="mt-1 text-xs text-muted-foreground">{subtext}</p>
 			)}
 		</div>
 	);

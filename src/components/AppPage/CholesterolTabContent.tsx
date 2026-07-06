@@ -48,9 +48,7 @@ export default function CholesterolTabContent({
 						const hdl = hdlByDate.get(total.isoDate.slice(0, 10));
 						return (
 							total.numericValue != null &&
-							hdl?.numericValue != null &&
-							total.unit != null &&
-							total.unit === hdl.unit
+							hdl?.numericValue != null
 						);
 					})
 					.map((total) => {
@@ -137,7 +135,7 @@ export default function CholesterolTabContent({
 
 	return (
 		<div className="flex flex-col gap-4 pt-1">
-			<div className="grid grid-cols-3 gap-3">
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 				{metrics.map(({ label, value, subtext, status }) => (
 					<MetricCard
 						key={label}

@@ -25,10 +25,37 @@ const chartConfig: ChartConfig = {
 
 // Thresholds are exclusive upper bounds: value < max → this band
 const BANDS = [
-	{ max: 150, label: "Normal", range: "<150", fill: "#22c55e", badgeCls: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-	{ max: 200, label: "Borderline High", range: "150–199", fill: "#eab308", badgeCls: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
-	{ max: 500, label: "High", range: "200–499", fill: "#f97316", badgeCls: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
-	{ max: Infinity, label: "Very High", range: "≥500", fill: "#ef4444", badgeCls: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
+	{
+		max: 150,
+		label: "Normal",
+		range: "<150",
+		fill: "#22c55e",
+		badgeCls:
+			"bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+	},
+	{
+		max: 200,
+		label: "Borderline High",
+		range: "150–199",
+		fill: "#eab308",
+		badgeCls:
+			"bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+	},
+	{
+		max: 500,
+		label: "High",
+		range: "200–499",
+		fill: "#f97316",
+		badgeCls:
+			"bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+	},
+	{
+		max: Infinity,
+		label: "Very High",
+		range: "≥500",
+		fill: "#ef4444",
+		badgeCls: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+	},
 ];
 
 function getBand(value: number) {
@@ -41,7 +68,8 @@ function getDotColor(value: number): string {
 
 export default function TriglyceridesChart({ observations }: Props) {
 	const latest = observations[0];
-	const currentBand = latest?.numericValue != null ? getBand(latest.numericValue) : null;
+	const currentBand =
+		latest?.numericValue != null ? getBand(latest.numericValue) : null;
 
 	const data = observations
 		.slice()
@@ -53,8 +81,14 @@ export default function TriglyceridesChart({ observations }: Props) {
 	// Always show all four bands including Very High (≥500)
 	const yMax = Math.max(rawMax + 50, 560);
 
-	const dot = (props: { cx?: number; cy?: number; value?: number; index?: number }) => {
-		if (props.cx == null || props.cy == null || props.value == null) return null;
+	const dot = (props: {
+		cx?: number;
+		cy?: number;
+		value?: number;
+		index?: number;
+	}) => {
+		if (props.cx == null || props.cy == null || props.value == null)
+			return null;
 		return (
 			<circle
 				key={`dot-${props.index}`}
@@ -68,8 +102,14 @@ export default function TriglyceridesChart({ observations }: Props) {
 		);
 	};
 
-	const activeDot = (props: { cx?: number; cy?: number; value?: number; index?: number }) => {
-		if (props.cx == null || props.cy == null || props.value == null) return null;
+	const activeDot = (props: {
+		cx?: number;
+		cy?: number;
+		value?: number;
+		index?: number;
+	}) => {
+		if (props.cx == null || props.cy == null || props.value == null)
+			return null;
 		return (
 			<circle
 				key={`active-dot-${props.index}`}
@@ -96,24 +136,54 @@ export default function TriglyceridesChart({ observations }: Props) {
 						)}
 					</div>
 					{currentBand && (
-						<span className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-medium ${currentBand.badgeCls}`}>
+						<span
+							className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-medium ${currentBand.badgeCls}`}
+						>
 							{currentBand.label}
 						</span>
 					)}
 				</div>
-				<p className="text-xs text-muted-foreground/70">
-					Fat particles in the blood — lower levels reduce your risk of heart disease and pancreatitis
+				<p className="text-xs text-muted-foreground">
+					Fat particles in the blood — lower levels reduce your risk of heart
+					disease and pancreatitis
 				</p>
 			</CardHeader>
 			<CardContent>
 				{data.length > 0 ? (
 					<>
 						<ChartContainer config={chartConfig} className="h-64 w-full">
-							<LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-								<ReferenceArea y1={0} y2={150} fill="#22c55e" fillOpacity={0.15} ifOverflow="visible" />
-								<ReferenceArea y1={150} y2={200} fill="#eab308" fillOpacity={0.15} ifOverflow="visible" />
-								<ReferenceArea y1={200} y2={500} fill="#f97316" fillOpacity={0.15} ifOverflow="visible" />
-								<ReferenceArea y1={500} y2={yMax} fill="#ef4444" fillOpacity={0.15} ifOverflow="visible" />
+							<LineChart
+								data={data}
+								margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+							>
+								<ReferenceArea
+									y1={0}
+									y2={150}
+									fill="#22c55e"
+									fillOpacity={0.15}
+									ifOverflow="visible"
+								/>
+								<ReferenceArea
+									y1={150}
+									y2={200}
+									fill="#eab308"
+									fillOpacity={0.15}
+									ifOverflow="visible"
+								/>
+								<ReferenceArea
+									y1={200}
+									y2={500}
+									fill="#f97316"
+									fillOpacity={0.15}
+									ifOverflow="visible"
+								/>
+								<ReferenceArea
+									y1={500}
+									y2={yMax}
+									fill="#ef4444"
+									fillOpacity={0.15}
+									ifOverflow="visible"
+								/>
 								<CartesianGrid strokeDasharray="3 3" vertical={false} />
 								<XAxis
 									dataKey="date"
@@ -139,9 +209,24 @@ export default function TriglyceridesChart({ observations }: Props) {
 										/>
 									}
 								/>
-								<ReferenceLine y={150} stroke="#eab308" strokeDasharray="4 3" strokeWidth={1} />
-								<ReferenceLine y={200} stroke="#f97316" strokeDasharray="4 3" strokeWidth={1} />
-								<ReferenceLine y={500} stroke="#ef4444" strokeDasharray="4 3" strokeWidth={1} />
+								<ReferenceLine
+									y={150}
+									stroke="#eab308"
+									strokeDasharray="4 3"
+									strokeWidth={1}
+								/>
+								<ReferenceLine
+									y={200}
+									stroke="#f97316"
+									strokeDasharray="4 3"
+									strokeWidth={1}
+								/>
+								<ReferenceLine
+									y={500}
+									stroke="#ef4444"
+									strokeDasharray="4 3"
+									strokeWidth={1}
+								/>
 								<Line
 									type="monotone"
 									dataKey="value"
@@ -154,13 +239,18 @@ export default function TriglyceridesChart({ observations }: Props) {
 						</ChartContainer>
 						<div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 px-1">
 							{BANDS.map((band) => (
-								<span key={band.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+								<span
+									key={band.label}
+									className="flex items-center gap-1.5 text-xs text-muted-foreground"
+								>
 									<span
 										className="inline-block h-2.5 w-2.5 rounded-full"
 										style={{ backgroundColor: band.fill }}
 									/>
 									{band.label}
-									<span className="text-muted-foreground/50">({band.range})</span>
+									<span className="text-muted-foreground/50">
+										({band.range})
+									</span>
 								</span>
 							))}
 						</div>

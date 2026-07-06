@@ -1,4 +1,11 @@
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, ReferenceLine } from "recharts";
+import {
+	LineChart,
+	Line,
+	CartesianGrid,
+	XAxis,
+	YAxis,
+	ReferenceLine,
+} from "recharts";
 import {
 	ChartContainer,
 	ChartTooltip,
@@ -23,7 +30,10 @@ export default function A1cChart({ observations }: Props) {
 		.slice()
 		.reverse()
 		.filter((o) => o.numericValue != null)
-		.map((o) => ({ date: o.date, value: o.numericValue }));
+		.map((o) => ({
+			date: o.date,
+			value: Number(o.numericValue!.toFixed(1)),
+		}));
 
 	return (
 		<Card>
@@ -33,18 +43,30 @@ export default function A1cChart({ observations }: Props) {
 			<CardContent>
 				{data.length > 0 ? (
 					<ChartContainer config={chartConfig} className="h-64 w-full">
-						<LineChart data={data} margin={{ top: 8, right: 24, left: 0, bottom: 0 }}>
+						<LineChart
+							data={data}
+							margin={{ top: 8, right: 24, left: 0, bottom: 0 }}
+						>
 							<CartesianGrid strokeDasharray="3 3" />
-							<XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={formatXDate} />
-							<YAxis tick={{ fontSize: 10 }} unit="%" domain={["auto", "auto"]} />
+							<XAxis
+								dataKey="date"
+								tick={{ fontSize: 10 }}
+								tickFormatter={formatXDate}
+							/>
+							<YAxis
+								tick={{ fontSize: 10 }}
+								unit="%"
+								domain={["auto", "auto"]}
+								tickFormatter={(v) => Number(v).toFixed(1)}
+							/>
 							<ChartTooltip content={<ChartTooltipContent />} />
 							<ReferenceLine
-								y={A1C_GOAL}
-								stroke="hsl(var(--destructive))"
+								y={8}
+								stroke="var(--destructive)"
 								strokeDasharray="4 2"
 								label={{
-									value: `Goal: <${A1C_GOAL}%`,
-									fill: "hsl(var(--destructive))",
+									value: "Goal: <8%",
+									fill: "var(--destructive)",
 									fontSize: 10,
 									position: "insideTopRight",
 								}}

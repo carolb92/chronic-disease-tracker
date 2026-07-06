@@ -32,8 +32,15 @@ export const HLD_SNOMED_CODES = [
 	"403831006", // Familial hypercholesterolemia due to genetic defect of apolipoprotein B
 ];
 
+// BMP glucose codes in preference order (used in DiabetesTabContent)
+export const RANDOM_GLUCOSE_CODES = [
+	"2345-7", // Glucose [Mass/volume] in Serum or Plasma (BMP)
+	"2339-0", // Glucose [Mass/volume] in Blood (BMP)
+];
+
 export const DIABETES_LOINC_CODES = [
 	"1558-6", // Fasting glucose
+	...RANDOM_GLUCOSE_CODES,
 	"4548-4", // Hemoglobin A1c
 	"29463-7", // Body weight
 	"33914-3", // eGFR

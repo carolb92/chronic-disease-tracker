@@ -91,8 +91,6 @@ export default function useFHIRResources() {
 		),
 	);
 
-	console.log("relevant conditions: ", relevantConditions);
-
 	const relevantSNOMEDCodes = relevantConditions
 		.flatMap((entry) =>
 			entry.code?.coding?.map((item) => {
@@ -100,7 +98,6 @@ export default function useFHIRResources() {
 			}),
 		)
 		.filter((item) => item !== undefined);
-	console.log("relevant SNOMED codes: ", relevantSNOMEDCodes);
 
 	// build a set of relevant LOINC codes from the patient's conditions
 	const ptLOINCCodes = new Set<string>();

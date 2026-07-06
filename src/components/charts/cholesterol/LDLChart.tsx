@@ -15,7 +15,11 @@ import {
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransformedObservation } from "@/lib/utils";
-import { formatXDate, makeGoalDots } from "@/components/charts/shared/chartUtils";
+import {
+	formatXDate,
+	makeGoalDots,
+	niceTicks,
+} from "@/components/charts/shared/chartUtils";
 
 type Props = {
 	observations: TransformedObservation[];
@@ -30,7 +34,8 @@ const Y_MIN = 40;
 
 export default function LDLChart({ observations, goal }: Props) {
 	const latest = observations[0];
-	const ldlAtGoal = latest?.numericValue != null ? latest.numericValue <= goal : null;
+	const ldlAtGoal =
+		latest?.numericValue != null ? latest.numericValue <= goal : null;
 
 	const data = observations
 		.slice()
@@ -38,10 +43,12 @@ export default function LDLChart({ observations, goal }: Props) {
 		.filter((o) => o.numericValue != null)
 		.map((o) => ({ date: o.date, value: o.numericValue as number }));
 
-	const yMax =
+	const paddedMax =
 		data.length > 0
 			? Math.max(...data.map((d) => d.value), goal + 30) + 20
 			: goal + 70;
+	const yTicks = niceTicks(Y_MIN, paddedMax);
+	const yMax = yTicks[yTicks.length - 1];
 
 	const { dot, activeDot } = makeGoalDots(goal, "lte");
 
@@ -73,7 +80,10 @@ export default function LDLChart({ observations, goal }: Props) {
 			<CardContent>
 				{data.length > 0 ? (
 					<ChartContainer config={chartConfig} className="h-64 w-full">
-						<LineChart data={data} margin={{ top: 8, right: 60, left: 0, bottom: 0 }}>
+						<LineChart
+							data={data}
+							margin={{ top: 8, right: 60, left: 0, bottom: 0 }}
+						>
 							<ReferenceArea
 								y1={Y_MIN}
 								y2={goal}
@@ -99,13 +109,17 @@ export default function LDLChart({ observations, goal }: Props) {
 							<YAxis
 								tick={{ fontSize: 10 }}
 								domain={[Y_MIN, yMax]}
+								ticks={yTicks}
 								axisLine={false}
 								tickLine={false}
+								tickFormatter={(v) => Math.round(v).toString()}
 							/>
 							<ChartTooltip
 								content={
 									<ChartTooltipContent
-										formatter={(value) => [`${Math.round(Number(value))} mg/dL`]}
+										formatter={(value) => [
+											`${Math.round(Number(value))} mg/dL`,
+										]}
 									/>
 								}
 							/>

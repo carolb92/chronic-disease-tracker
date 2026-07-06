@@ -33,7 +33,7 @@ export default function HypertensionTabContent({ groupedObservations }: Props) {
 
 	return (
 		<div className="flex flex-col gap-4 pt-1">
-			<div className="grid grid-cols-3 gap-3">
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 				{metrics.map(({ label, value, subtext, status }) => (
 					<MetricCard key={label} label={label} value={value} subtext={subtext} status={status} />
 				))}

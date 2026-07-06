@@ -33,7 +33,6 @@ const patients: Patients[] = [
 	},
 ];
 
-//TODO: replace url with vercel url once deployed
 const launcherInstructions = [
 	{
 		title: "Select the launch type",

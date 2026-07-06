@@ -25,7 +25,7 @@ export default function GlucoseChart({ observations, glucoseType }: Props) {
 		.slice()
 		.reverse()
 		.filter((o) => o.numericValue != null)
-		.map((o) => ({ date: o.date, value: o.numericValue }));
+		.map((o) => ({ date: o.date, value: Math.round(o.numericValue!) }));
 
 	const isFasting = glucoseType === "fasting";
 
@@ -47,7 +47,7 @@ export default function GlucoseChart({ observations, glucoseType }: Props) {
 						<LineChart data={data} margin={{ top: 8, right: 24, left: 0, bottom: 0 }}>
 							<CartesianGrid strokeDasharray="3 3" />
 							<XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={formatXDate} />
-							<YAxis tick={{ fontSize: 10 }} domain={["auto", "auto"]} />
+							<YAxis tick={{ fontSize: 10 }} domain={["auto", "auto"]} tickFormatter={(v) => Math.round(Number(v)).toString()} />
 							<ChartTooltip content={<ChartTooltipContent />} />
 							<Line
 								type="monotone"

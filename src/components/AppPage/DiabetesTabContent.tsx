@@ -2,7 +2,7 @@ import type { TransformedObservation } from "@/lib/utils";
 import type { HedisMeasureResult } from "@/lib/hedis";
 import MetricCard, { type MetricStatus } from "./MetricCard";
 import A1cChart from "@/components/charts/diabetes/A1cChart";
-import GlucoseChart from "@/components/charts/diabetes/GlucoseChart";
+import GlucoseChart, { type GlucoseType } from "@/components/charts/diabetes/GlucoseChart";
 import DiabetesCareChecklist from "@/components/charts/diabetes/DiabetesCareChecklist";
 
 type Props = {
@@ -10,14 +10,33 @@ type Props = {
 	diabetesHedisMeasures: HedisMeasureResult[] | null;
 };
 
+// BMP glucose codes in preference order
+const RANDOM_GLUCOSE_CODES = ["2345-7", "2339-0"];
+
 export default function DiabetesTabContent({
 	groupedObservations,
 	diabetesHedisMeasures,
 }: Props) {
 	const latestA1c = groupedObservations["4548-4"]?.[0];
-	const latestGlucose = groupedObservations["1558-6"]?.[0];
 	const metCount = (diabetesHedisMeasures ?? []).filter((m) => m.status === "met").length;
 	const totalCount = diabetesHedisMeasures?.length ?? 0;
+
+	// Prefer fasting glucose; fall back to first available BMP glucose code
+	const fastingObs = groupedObservations["1558-6"] ?? [];
+	const randomGlucoseCode = RANDOM_GLUCOSE_CODES.find(
+		(code) => (groupedObservations[code]?.length ?? 0) > 0,
+	);
+	const hasFasting = fastingObs.length > 0;
+	const glucoseType: GlucoseType = hasFasting ? "fasting" : "random";
+	const glucoseObservations = hasFasting
+		? fastingObs
+		: (randomGlucoseCode ? groupedObservations[randomGlucoseCode] : []) ?? [];
+	const latestGlucose = glucoseObservations[0];
+
+	console.log("[Glucose] fasting (1558-6):", groupedObservations["1558-6"] ?? []);
+	console.log("[Glucose] random (2345-7):", groupedObservations["2345-7"] ?? []);
+	console.log("[Glucose] random (2339-0):", groupedObservations["2339-0"] ?? []);
+	console.log("[Glucose] using:", glucoseType, "→", glucoseObservations);
 
 	const a1cValue =
 		latestA1c?.numericValue != null ? `${latestA1c.numericValue.toFixed(1)}%` : "—";
@@ -35,34 +54,35 @@ export default function DiabetesTabContent({
 					? "bad"
 					: "neutral";
 
-	const glucoseStatus: MetricStatus =
-		latestGlucose?.numericValue == null
-			? "neutral"
-			: latestGlucose.numericValue >= 80 && latestGlucose.numericValue < 130
-				? "good"
-				: "bad";
+	const glucoseStatus: MetricStatus = (() => {
+		const v = latestGlucose?.numericValue;
+		if (v == null || glucoseType === "random") return "neutral";
+		return v >= 80 && v < 130 ? "good" : "bad";
+	})();
 
 	const checklistStatus: MetricStatus =
 		diabetesHedisMeasures && totalCount > 0 && metCount === totalCount
 			? "good"
 			: "neutral";
 
+	const glucoseLabel = glucoseType === "fasting" ? "Fasting Glucose" : "Blood Glucose";
+
 	const metrics = [
 		{ label: "HbA1c", value: a1cValue, subtext: latestA1c?.date, status: a1cStatus },
-		{ label: "Fasting Glucose", value: glucoseValue, subtext: latestGlucose?.date, status: glucoseStatus },
+		{ label: glucoseLabel, value: glucoseValue, subtext: latestGlucose?.date, status: glucoseStatus },
 		{ label: "Diabetes Care Checklist", value: diabetesHedisMeasures ? `${metCount}/${totalCount} met` : "—", status: checklistStatus },
 	];
 
 	return (
 		<div className="flex flex-col gap-4 pt-1">
-			<div className="grid grid-cols-3 gap-3">
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 				{metrics.map(({ label, value, subtext, status }) => (
 					<MetricCard key={label} label={label} value={value} subtext={subtext} status={status} />
 				))}
 			</div>
 
 			<A1cChart observations={groupedObservations["4548-4"] ?? []} />
-			<GlucoseChart observations={groupedObservations["1558-6"] ?? []} />
+			<GlucoseChart observations={glucoseObservations} glucoseType={glucoseType} />
 
 			{diabetesHedisMeasures && diabetesHedisMeasures.length > 0 && (
 				<DiabetesCareChecklist measures={diabetesHedisMeasures} />

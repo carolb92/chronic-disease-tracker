@@ -82,8 +82,8 @@ export default function HDLChart({ observations, gender }: Props) {
 				</div>
 				{/* //TODO: double check this */}
 				<p className="text-xs text-muted-foreground">
-					HDL cholesterol helps your body remove excess LDL ("bad") cholesterol
-					–– a higher value is better
+					HDL ("good") cholesterol helps your body remove excess LDL ("bad")
+					cholesterol –– a higher value is better
 				</p>
 			</CardHeader>
 			<CardContent>

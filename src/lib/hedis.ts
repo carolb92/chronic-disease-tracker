@@ -6,21 +6,13 @@ export type HedisMeasureResult = {
 	detail: string;
 };
 
-// Finds the most recent observation matching a LOINC code within the measurement year
-function getMostRecentInYear(
+// Finds the most recent observation matching a LOINC code, regardless of year
+function getMostRecentObservation(
 	observations: fhir4.Observation[],
 	loincCode: string,
-	measurementYear: number,
 ): fhir4.Observation | undefined {
 	return observations
-		.filter((obs) => {
-			const matchesCode = obs.code?.coding?.some((c) => c.code === loincCode);
-			const date = obs.effectiveDateTime
-				? new Date(obs.effectiveDateTime)
-				: null;
-			const inYear = date?.getFullYear() === measurementYear;
-			return matchesCode && inYear;
-		})
+		.filter((obs) => obs.code?.coding?.some((c) => c.code === loincCode))
 		.sort(
 			(a, b) =>
 				new Date(b.effectiveDateTime ?? 0).getTime() -
@@ -28,27 +20,32 @@ function getMostRecentInYear(
 		)[0];
 }
 
-// Checks if any observation matching a LOINC code exists within the measurement year
-function hasObservationInYear(
+// All distinct years in which an observation matching a LOINC code was recorded
+function getYearsForCode(
 	observations: fhir4.Observation[],
 	loincCode: string,
-	measurementYear: number,
-): boolean {
-	return !!getMostRecentInYear(observations, loincCode, measurementYear);
+): Set<number> {
+	const years = new Set<number>();
+	observations.forEach((obs) => {
+		const matchesCode = obs.code?.coding?.some((c) => c.code === loincCode);
+		if (!matchesCode || !obs.effectiveDateTime) return;
+		years.add(new Date(obs.effectiveDateTime).getFullYear());
+	});
+	return years;
 }
 
-// BP Control: most recent BP reading in measurement year must be <140/90
-function evaluateBPControl(
-	observations: fhir4.Observation[],
-	measurementYear: number,
-): HedisMeasureResult {
-	const bpObs = getMostRecentInYear(observations, "55284-4", measurementYear);
+const BP_SYSTOLIC_GOAL = 130; // mmHg — at goal when below this value
+const BP_DIASTOLIC_GOAL = 80; // mmHg — at goal when below this value
+
+function evaluateBPControl(observations: fhir4.Observation[]): HedisMeasureResult {
+	const name = `Blood Pressure Control (<${BP_SYSTOLIC_GOAL}/${BP_DIASTOLIC_GOAL})`;
+	const bpObs = getMostRecentObservation(observations, "55284-4");
 
 	if (!bpObs?.component) {
 		return {
-			name: "Blood Pressure Control (<140/90)",
+			name,
 			status: "insufficient-data",
-			detail: `No blood pressure reading found in ${measurementYear}`,
+			detail: "No blood pressure reading found",
 		};
 	}
 
@@ -62,101 +59,103 @@ function evaluateBPControl(
 
 	if (systolic == null || diastolic == null) {
 		return {
-			name: "Blood Pressure Control (<140/90)",
+			name,
 			status: "insufficient-data",
 			detail: "Blood pressure reading missing systolic or diastolic value",
 		};
 	}
 
-	const controlled = systolic < 140 && diastolic < 90;
+	const controlled =
+		systolic < BP_SYSTOLIC_GOAL && diastolic < BP_DIASTOLIC_GOAL;
 	return {
-		name: "Blood Pressure Control (<140/90)",
+		name,
 		status: controlled ? "met" : "not-met",
 		detail: `Most recent reading: ${systolic.toFixed(0)}/${diastolic.toFixed(0)} mm[Hg]`,
 	};
 }
 
-// HbA1c: most recent reading in measurement year; <8% = good control, >9% = poor control
-function evaluateA1cControl(
-	observations: fhir4.Observation[],
-	measurementYear: number,
-): HedisMeasureResult {
-	const a1cObs = getMostRecentInYear(observations, "4548-4", measurementYear);
+export const A1C_GOAL = 7; // % — at goal when below this value
+
+function evaluateA1cControl(observations: fhir4.Observation[]): HedisMeasureResult {
+	const a1cObs = getMostRecentObservation(observations, "4548-4");
 
 	if (!a1cObs?.valueQuantity?.value) {
 		return {
 			name: "HbA1c Control",
 			status: "insufficient-data",
-			detail: `No HbA1c reading found in ${measurementYear}`,
+			detail: "No HbA1c reading found",
 		};
 	}
 
 	const value = a1cObs.valueQuantity.value;
-	let status: MeasureStatus;
-	let detail: string;
-
-	if (value < 8) {
-		status = "met";
-		detail = `Good control: ${value.toFixed(1)}% (<8%)`;
-	} else if (value >= 8 && value <= 9) {
-		status = "not-met";
-		detail = `Borderline: ${value.toFixed(1)}% (≥8%, ≤9%)`;
-	} else {
-		status = "not-met";
-		detail = `Poor control: ${value.toFixed(1)}% (>9%)`;
-	}
-
-	return { name: "HbA1c Control", status, detail };
-}
-
-// Kidney Health Evaluation: both eGFR and uACR must be performed in the measurement year
-function evaluateKidneyEvaluation(
-	observations: fhir4.Observation[],
-	measurementYear: number,
-): HedisMeasureResult {
-	const hasEGFR = hasObservationInYear(
-		observations,
-		"33914-3",
-		measurementYear,
-	);
-	const hasUACR = hasObservationInYear(
-		observations,
-		"14959-1",
-		measurementYear,
-	);
-
-	if (hasEGFR && hasUACR) {
-		return {
-			name: "Kidney Health Evaluation (eGFR + uACR)",
-			status: "met",
-			detail: `Both eGFR and uACR performed in ${measurementYear}`,
-		};
-	}
-
-	const missing = [!hasEGFR ? "eGFR" : null, !hasUACR ? "uACR" : null]
-		.filter(Boolean)
-		.join(" and ");
+	const atGoal = value < A1C_GOAL;
 
 	return {
-		name: "Kidney Health Evaluation (eGFR + uACR)",
-		status: missing === "eGFR and uACR" ? "insufficient-data" : "not-met",
-		detail: `Missing ${missing} in ${measurementYear}`,
+		name: "HbA1c Control",
+		status: atGoal ? "met" : "not-met",
+		detail: atGoal
+			? `At goal: ${value.toFixed(1)}% (<${A1C_GOAL}%)`
+			: `Above goal: ${value.toFixed(1)}% (≥${A1C_GOAL}%)`,
 	};
 }
 
-// Evaluates all observation-based HEDIS diabetes measures for a given measurement year
+// Kidney Health Evaluation: both eGFR and uACR must be performed in the same year
+function evaluateKidneyEvaluation(
+	observations: fhir4.Observation[],
+): HedisMeasureResult {
+	const name = "Kidney Health Evaluation (eGFR + uACR)";
+	const egfrYears = getYearsForCode(observations, "33914-3");
+	const uacrYears = getYearsForCode(observations, "14959-1");
+
+	const commonYears = [...egfrYears].filter((year) => uacrYears.has(year));
+	if (commonYears.length > 0) {
+		const mostRecentCommonYear = Math.max(...commonYears);
+		return {
+			name,
+			status: "met",
+			detail: `Both eGFR and uACR performed in ${mostRecentCommonYear}`,
+		};
+	}
+
+	const missing = [
+		egfrYears.size === 0 ? "eGFR" : null,
+		uacrYears.size === 0 ? "uACR" : null,
+	]
+		.filter(Boolean)
+		.join(" and ");
+
+	if (missing === "eGFR and uACR") {
+		return {
+			name,
+			status: "insufficient-data",
+			detail: "Missing eGFR and uACR",
+		};
+	}
+
+	return {
+		name,
+		status: "not-met",
+		detail: missing
+			? `Missing ${missing}`
+			: "eGFR and uACR performed in different years",
+	};
+}
+
+// Evaluates all observation-based HEDIS diabetes measures.
+// Each measure derives its own "most recent" year from its own LOINC code(s),
+// so a later reading of an unrelated measure (e.g. weight) can't make an
+// earlier-but-present reading of another (e.g. A1c) look missing.
 export function evaluateDiabetesHedisMeasures(
 	observations: fhir4.Observation[],
-	measurementYear: number,
 ): HedisMeasureResult[] {
 	return [
-		evaluateBPControl(observations, measurementYear),
-		evaluateA1cControl(observations, measurementYear),
-		evaluateKidneyEvaluation(observations, measurementYear),
+		evaluateBPControl(observations),
+		evaluateA1cControl(observations),
+		evaluateKidneyEvaluation(observations),
 		{
 			name: "Eye Exam",
 			status: "insufficient-data",
-			detail: `Missing eye exam records in ${measurementYear}`,
+			detail: `Missing eye exam records in ${new Date().getFullYear()}`,
 		},
 	];
 }

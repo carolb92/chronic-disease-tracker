@@ -25,10 +25,10 @@ export default function DiabetesCareChecklist({ measures }: Props) {
 					Diabetes Care Checklist
 				</h3>
 				<p className="mb-3 text-sm">
-					Research shows that people with diabetes who keep their blood pressure,
-					blood sugar, and kidney health within their target range - and get
-					regular eye exams - are less likely to develop complications like
-					vision loss, kidney disease, and heart disease.
+					Research shows that people with diabetes who keep their blood
+					pressure, blood sugar, and kidney health within their target range -
+					and get regular eye exams - are less likely to develop complications
+					like vision loss, kidney disease, and heart disease.
 				</p>
 				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
 					{measures.map((m) => (

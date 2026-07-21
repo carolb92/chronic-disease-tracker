@@ -4,6 +4,7 @@ import LDLChart from "@/components/charts/cholesterol/LDLChart";
 import HDLChart from "@/components/charts/cholesterol/HDLChart";
 import TriglyceridesChart from "@/components/charts/cholesterol/TriglyceridesChart";
 import NonHDLChart from "@/components/charts/cholesterol/NonHDLChart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Will be derived from ASCVD risk in the future
 const LDL_GOAL = 100; // mg/dL
@@ -162,6 +163,38 @@ export default function CholesterolTabContent({
 				goal={NON_HDL_GOAL}
 				isDerived={isDerivedNonHDL}
 			/>
+
+			<Card className="bg-primary/10">
+				<CardHeader>
+					<CardTitle className="font-semibold">Disclaimer</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="font-semibold text-muted-foreground mb-1">
+						Limitation: cholesterol targets are not risk-stratified
+					</p>
+					<p className="">
+						LDL and Non-HDL goals shown here (LDL &lt;100 mg/dL, Non-HDL &lt;130
+						mg/dL) are fixed values applied to all patients — they do not
+						account for individual ASCVD risk category. Per{" "}
+						<a
+							href="https://www.ahajournals.org/doi/10.1161/CIR.0000000000001423"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="font-semibold text-primary"
+						>
+							{" "}
+							current ACC/AHA guidance
+						</a>
+						, LDL-C goals range from &lt;100 mg/dL (borderline/intermediate
+						risk) to &lt;70 mg/dL (high risk) to &lt;55 mg/dL (very-high-risk
+						secondary prevention). This app does not calculate ASCVD risk (e.g.,
+						via the AHA PREVENT equations), so it cannot select the correct goal
+						tier per patient — a high-risk or secondary-prevention patient will
+						see an artificially lenient "at goal" status. This is a v1 scope
+						limitation; risk-stratified goals are deferred to v2.
+					</p>
+				</CardContent>
+			</Card>
 		</div>
 	);
 }

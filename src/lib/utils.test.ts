@@ -1,9 +1,25 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { formatDate, calculateAge } from "./utils";
+import { formatDate, calculateAge, parseLocalDate } from "./utils";
+
+describe("parseLocalDate", () => {
+	it("preserves the year, month, and day regardless of the runtime timezone", () => {
+		// Built from local Y/M/D components, so these getters (which also read
+		// local time) can never disagree with the input — no UTC round-trip
+		// in between for a timezone offset to corrupt.
+		const date = parseLocalDate("1996-07-21");
+		expect(date.getFullYear()).toBe(1996);
+		expect(date.getMonth()).toBe(6);
+		expect(date.getDate()).toBe(21);
+	});
+});
 
 describe("formatDate", () => {
-	it("formats an ISO date string as MM/DD/YYYY", () => {
+	it("formats a date-only string as MM/DD/YYYY without shifting days", () => {
 		expect(formatDate("2020-03-05")).toBe("03/05/2020");
+	});
+
+	it("still formats a full ISO datetime correctly", () => {
+		expect(formatDate("2024-01-01T08:00:00-05:00")).toBe("01/01/2024");
 	});
 });
 

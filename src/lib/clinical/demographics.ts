@@ -1,4 +1,4 @@
-import { calculateAge, formatDate } from "@/lib/utils";
+import { calculateAge, formatDate, parseLocalDate } from "@/lib/utils";
 
 export type DisplayDemographics = {
 	displayName: string | null;
@@ -24,7 +24,7 @@ export function deriveDisplayDemographics(
 		: null;
 
 	let d;
-	if (birthDate) d = new Date(birthDate);
+	if (birthDate) d = parseLocalDate(birthDate);
 	const displayBDay = d ? formatDate(birthDate!) : null;
 
 	const age = d ? calculateAge(d) : null;

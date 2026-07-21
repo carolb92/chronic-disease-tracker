@@ -12,7 +12,7 @@ The app launches via the SMART on FHIR OAuth2 flow and reads FHIR R4 resources (
 
 Conditions tracked:
 
-- **Diabetes** — HbA1c, fasting glucose, body weight, eGFR, uACR, blood pressure
+- **Diabetes** — HbA1c, blood glucose, eGFR, uACR, blood pressure
 - **Hypertension** — systolic and diastolic BP trends
 - **Hyperlipidemia** — LDL, HDL, total cholesterol, triglycerides, non-HDL
 

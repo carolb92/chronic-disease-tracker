@@ -88,7 +88,12 @@ export default function Instructions() {
 					<span className="font-semibold text-primary">
 						No real patient data is used
 					</span>
-					. For the best experience, use one of the patient records below.
+					. During development, many available synthetic patient records were
+					found to have Observation data that was thin, irregular, and/or
+					clinically unrealistic. The patient records below were evaluated for
+					data quality/completeness. Running the demo against one of these
+					records will provide the best experience in visualizing a patient's
+					health trends.
 				</p>
 				<p className="text-muted-foreground">
 					Follow the steps in order; the screenshots show exactly what to select

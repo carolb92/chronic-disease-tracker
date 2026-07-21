@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransformedObservation } from "@/lib/clinical/observations";
 import { formatXDate } from "@/components/charts/shared/chartUtils";
-import { A1C_GOAL } from "@/lib/hedis";
+import { A1C_GOAL } from "@/lib/diabetesCareGuidelines";
 
 type Props = {
 	observations: TransformedObservation[];

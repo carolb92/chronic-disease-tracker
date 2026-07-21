@@ -7,7 +7,7 @@ import {
 } from "@/lib/constants";
 import { useState } from "react";
 import type { TransformedObservation } from "@/lib/clinical/observations";
-import type { HedisMeasureResult } from "@/lib/hedis";
+import type { DiabetesCareGuidelineResult } from "@/lib/diabetesCareGuidelines";
 import DiabetesTabContent from "./DiabetesTabContent";
 import HypertensionTabContent from "./HypertensionTabContent";
 import CholesterolTabContent from "./CholesterolTabContent";
@@ -15,12 +15,12 @@ import CholesterolTabContent from "./CholesterolTabContent";
 export default function AppPageTabs({
 	SNOMEDCodes,
 	groupedObservations,
-	diabetesHedisMeasures,
+	diabetesCareGuidelines,
 	gender,
 }: {
 	SNOMEDCodes: string[];
 	groupedObservations: Record<string, TransformedObservation[]>;
-	diabetesHedisMeasures: HedisMeasureResult[] | null;
+	diabetesCareGuidelines: DiabetesCareGuidelineResult[] | null;
 	gender: string | null | undefined;
 }) {
 	const [defaultTab, setDefaultTab] = useState("");
@@ -71,7 +71,7 @@ export default function AppPageTabs({
 					{tab.value === "diabetes" && (
 						<DiabetesTabContent
 							groupedObservations={groupedObservations}
-							diabetesHedisMeasures={diabetesHedisMeasures}
+							diabetesCareGuidelines={diabetesCareGuidelines}
 						/>
 					)}
 					{tab.value === "hypertension" && (

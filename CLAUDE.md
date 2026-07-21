@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A SMART on FHIR patient-facing app for tracking chronic disease management across three conditions: Diabetes (DM), Hypertension (HTN), and Hyperlipidemia (HLD). It launches via the SMART OAuth2 flow, reads FHIR resources (Patient, Condition, Observation), and evaluates HEDIS quality measures.
+A SMART on FHIR patient-facing app for tracking chronic disease management across three conditions: Diabetes (DM), Hypertension (HTN), and Hyperlipidemia (HLD). It launches via the SMART OAuth2 flow, reads FHIR resources (Patient, Condition, Observation), and displays charts trending the patient's relevant Observation data (lab values, blood pressure measurements). Diabetic patients are also shown specific goals (framed as a checklist) based on diabetes care guidelines.
 
 ## Commands
 
@@ -22,17 +22,19 @@ A SMART on FHIR patient-facing app for tracking chronic disease management acros
 
 **Data pipeline:**
 `useFHIRResources` (`hooks/useFHIRResources.ts`) is a thin I/O hook — it fetches Patient, Condition, and Observation resources in parallel after OAuth2 completes, and holds only fetch/error state. All derivation is pure and lives in `lib/clinical/`:
+
 - `conditions.ts` — filters conditions to those matching `TRACKED_CONDITION_SNOMED_CODES`
 - `observations.ts` — maps SNOMED codes → LOINC codes via `SNOMED_TO_LOINC` to find relevant observations, then groups/sorts them for display
 - `demographics.ts` — derives patient display fields (name, age, formatted birthdate)
-- `deriveClinicalView.ts` — composes the above and runs HEDIS measure evaluation for diabetes patients (`lib/hedis.ts`)
+- `deriveClinicalView.ts` — composes the above and runs diabetes care guideline evaluation for diabetes patients (`lib/diabetesCareGuidelines.ts`)
 
-The hook calls `deriveClinicalView` inside a `useMemo` over the raw fetched resources. Because this layer is pure (no I/O, no React), it's unit-tested directly with Vitest — see `lib/clinical/*.test.ts` and `lib/hedis.test.ts`.
+The hook calls `deriveClinicalView` inside a `useMemo` over the raw fetched resources. Because this layer is pure (no I/O, no React), it's unit-tested directly with Vitest — see `lib/clinical/*.test.ts` and `lib/diabetesCareGuidelines.test.ts`.
 
 **Clinical code mappings (`lib/constants.ts`):**
 All clinical terminology lives here. SNOMED codes identify conditions; LOINC codes identify lab/vital observations. The `SNOMED_TO_LOINC` map drives which observations are fetched per condition. Disease-group arrays (`DM_SNOMED_CODES`, `HTN_SNOMED_CODES`, `HLD_SNOMED_CODES`) control which UI tabs render.
 
 **UI structure:**
+
 - `components/ui/` — ShadCN primitives (don't edit manually)
 - `components/AppPage/` — app page feature components
 - `components/Instructions/` — landing page components

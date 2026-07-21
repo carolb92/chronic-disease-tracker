@@ -1,6 +1,6 @@
 export type MeasureStatus = "met" | "not-met" | "insufficient-data";
 
-export type HedisMeasureResult = {
+export type DiabetesCareGuidelineResult = {
 	name: string;
 	status: MeasureStatus;
 	detail: string;
@@ -37,7 +37,7 @@ function getYearsForCode(
 const BP_SYSTOLIC_GOAL = 130; // mmHg — at goal when below this value
 const BP_DIASTOLIC_GOAL = 80; // mmHg — at goal when below this value
 
-function evaluateBPControl(observations: fhir4.Observation[]): HedisMeasureResult {
+function evaluateBPControl(observations: fhir4.Observation[]): DiabetesCareGuidelineResult {
 	const name = `Blood Pressure Control (<${BP_SYSTOLIC_GOAL}/${BP_DIASTOLIC_GOAL})`;
 	const bpObs = getMostRecentObservation(observations, "55284-4");
 
@@ -76,7 +76,7 @@ function evaluateBPControl(observations: fhir4.Observation[]): HedisMeasureResul
 
 export const A1C_GOAL = 7; // % — at goal when below this value
 
-function evaluateA1cControl(observations: fhir4.Observation[]): HedisMeasureResult {
+function evaluateA1cControl(observations: fhir4.Observation[]): DiabetesCareGuidelineResult {
 	const a1cObs = getMostRecentObservation(observations, "4548-4");
 
 	if (!a1cObs?.valueQuantity?.value) {
@@ -102,7 +102,7 @@ function evaluateA1cControl(observations: fhir4.Observation[]): HedisMeasureResu
 // Kidney Health Evaluation: both eGFR and uACR must be performed in the same year
 function evaluateKidneyEvaluation(
 	observations: fhir4.Observation[],
-): HedisMeasureResult {
+): DiabetesCareGuidelineResult {
 	const name = "Kidney Health Evaluation (eGFR + uACR)";
 	const egfrYears = getYearsForCode(observations, "33914-3");
 	const uacrYears = getYearsForCode(observations, "14959-1");
@@ -141,13 +141,13 @@ function evaluateKidneyEvaluation(
 	};
 }
 
-// Evaluates all observation-based HEDIS diabetes measures.
+// Evaluates all observation-based diabetes care guideline measures.
 // Each measure derives its own "most recent" year from its own LOINC code(s),
 // so a later reading of an unrelated measure (e.g. weight) can't make an
 // earlier-but-present reading of another (e.g. A1c) look missing.
-export function evaluateDiabetesHedisMeasures(
+export function evaluateDiabetesCareGuidelines(
 	observations: fhir4.Observation[],
-): HedisMeasureResult[] {
+): DiabetesCareGuidelineResult[] {
 	return [
 		evaluateBPControl(observations),
 		evaluateA1cControl(observations),

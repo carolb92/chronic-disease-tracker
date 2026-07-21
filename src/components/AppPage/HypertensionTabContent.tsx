@@ -1,4 +1,4 @@
-import type { TransformedObservation } from "@/lib/utils";
+import type { TransformedObservation } from "@/lib/clinical/observations";
 import MetricCard, { type MetricStatus } from "./MetricCard";
 import BPChart from "@/components/charts/hypertension/BPChart";
 

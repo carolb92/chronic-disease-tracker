@@ -14,7 +14,7 @@ import {
 	type ChartConfig,
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { TransformedObservation } from "@/lib/utils";
+import type { TransformedObservation } from "@/lib/clinical/observations";
 import {
 	formatXDate,
 	makeGoalDots,

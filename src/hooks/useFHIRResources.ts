@@ -1,16 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import FHIR from "fhirclient";
-import {
-	calculateAge,
-	formatDate,
-	groupAndSortObservations,
-} from "@/lib/utils";
-import {
-	TRACKED_CONDITION_SNOMED_CODES,
-	SNOMED_TO_LOINC,
-	DM_SNOMED_CODES,
-} from "@/lib/constants";
-import { evaluateDiabetesHedisMeasures } from "@/lib/hedis";
+import { deriveClinicalView } from "@/lib/clinical/deriveClinicalView";
 
 export default function useFHIRResources() {
 	const [patient, setPatient] = useState<fhir4.Patient | null>(null);
@@ -19,8 +9,6 @@ export default function useFHIRResources() {
 	const [obsError, setObsError] = useState<Error | null>(null);
 	const [conditions, setConditions] = useState<fhir4.Condition[]>([]);
 	const [conditionsErr, setConditionsErr] = useState<Error | null>(null);
-
-	const trackedConditionSet = new Set(TRACKED_CONDITION_SNOMED_CODES);
 
 	useEffect(() => {
 		FHIR.oauth2.ready().then((client) => {
@@ -59,88 +47,16 @@ export default function useFHIRResources() {
 		});
 	}, []);
 
-	// PATIENT DEMOGRAPHICS
-	const name = patient ? patient.name : null;
-	const birthDate = patient ? patient.birthDate : null;
-	const gender = patient ? patient.gender : null;
-	const bestName =
-		name?.find((item) => item.use === "official") ??
-		name?.find((item) => item.use === "usual") ??
-		name?.[0];
-	const displayName = bestName
-		? `${bestName.family}, ${bestName.given?.join(" ")}`
-		: null;
-	let d;
-	if (birthDate) d = new Date(birthDate);
-	const displayBDay = d ? formatDate(birthDate!) : null;
-
-	const age = d ? calculateAge(d) : null;
-
-	// CONDITIONS
-	const activeConditions = conditions.filter((c) =>
-		c.clinicalStatus?.coding?.find((item) => item.code === "active"),
+	const clinicalView = useMemo(
+		() => deriveClinicalView(patient, conditions, observations),
+		[patient, conditions, observations],
 	);
-
-	const relevantConditions = activeConditions.filter((entry) =>
-		entry.code?.coding?.some(
-			(item) =>
-				item.system === "http://snomed.info/sct" &&
-				item.code &&
-				trackedConditionSet.has(item.code),
-		),
-	);
-
-	const relevantSNOMEDCodes = relevantConditions
-		.flatMap((entry) =>
-			entry.code?.coding?.map((item) => {
-				if (item.system === "http://snomed.info/sct") return item.code;
-			}),
-		)
-		.filter((item) => item !== undefined);
-
-	// build a set of relevant LOINC codes from the patient's conditions
-	const ptLOINCCodes = new Set<string>();
-	relevantConditions.forEach((condition) => {
-		condition.code?.coding?.forEach((coding) => {
-			if (coding.code && coding.code in SNOMED_TO_LOINC) {
-				for (const loinc of SNOMED_TO_LOINC[coding.code]) {
-					ptLOINCCodes.add(loinc);
-				}
-			}
-		});
-	});
-
-	const relevantObservations = observations.filter((obs) =>
-		obs.code?.coding?.some(
-			(coding) =>
-				coding.system === "http://loinc.org" &&
-				coding.code &&
-				ptLOINCCodes.has(coding.code),
-		),
-	);
-
-	const groupedObservations = groupAndSortObservations(relevantObservations);
-
-	const hasDiabetes = relevantSNOMEDCodes.some((code) =>
-		DM_SNOMED_CODES.includes(code),
-	);
-
-	const diabetesHedisMeasures = hasDiabetes
-		? evaluateDiabetesHedisMeasures(relevantObservations)
-		: null;
 
 	return {
 		patient,
-		groupedObservations,
-		diabetesHedisMeasures,
 		ptError,
 		obsError,
-		displayName,
-		displayBDay,
-		age,
-		gender,
-		relevantConditions,
 		conditionsErr,
-		relevantSNOMEDCodes,
+		...clinicalView,
 	};
 }

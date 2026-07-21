@@ -12,20 +12,22 @@ A SMART on FHIR patient-facing app for tracking chronic disease management acros
 - `npm run build` — type-check with `tsc -b` then bundle with Vite
 - `npm run lint` — ESLint
 - `npx shadcn add <component>` — add ShadCN UI components (style: radix-nova)
-
-There is no test runner configured.
+- `npm test` — run the Vitest suite once
+- `npm run test:watch` — run Vitest in watch mode
 
 ## Architecture
 
 **SMART on FHIR launch flow:**
 `/instructions` (landing page) → `/launch` (triggers `FHIR.oauth2.authorize`) → `/app` (redirect URI, main app). The `fhirclient` library handles the OAuth2 handshake; the app requests `patient/*.read` scope.
 
-**Data pipeline (`useFHIRResources` hook):**
-The single hook fetches Patient, Condition, and Observation resources in parallel after OAuth2 completes. It then:
-1. Filters conditions to those matching `TRACKED_CONDITION_SNOMED_CODES`
-2. Maps SNOMED codes → LOINC codes via `SNOMED_TO_LOINC` to find relevant observations
-3. Groups/sorts observations for display
-4. Runs HEDIS measure evaluation for diabetes patients (`lib/hedis.ts`)
+**Data pipeline:**
+`useFHIRResources` (`hooks/useFHIRResources.ts`) is a thin I/O hook — it fetches Patient, Condition, and Observation resources in parallel after OAuth2 completes, and holds only fetch/error state. All derivation is pure and lives in `lib/clinical/`:
+- `conditions.ts` — filters conditions to those matching `TRACKED_CONDITION_SNOMED_CODES`
+- `observations.ts` — maps SNOMED codes → LOINC codes via `SNOMED_TO_LOINC` to find relevant observations, then groups/sorts them for display
+- `demographics.ts` — derives patient display fields (name, age, formatted birthdate)
+- `deriveClinicalView.ts` — composes the above and runs HEDIS measure evaluation for diabetes patients (`lib/hedis.ts`)
+
+The hook calls `deriveClinicalView` inside a `useMemo` over the raw fetched resources. Because this layer is pure (no I/O, no React), it's unit-tested directly with Vitest — see `lib/clinical/*.test.ts` and `lib/hedis.test.ts`.
 
 **Clinical code mappings (`lib/constants.ts`):**
 All clinical terminology lives here. SNOMED codes identify conditions; LOINC codes identify lab/vital observations. The `SNOMED_TO_LOINC` map drives which observations are fetched per condition. Disease-group arrays (`DM_SNOMED_CODES`, `HTN_SNOMED_CODES`, `HLD_SNOMED_CODES`) control which UI tabs render.

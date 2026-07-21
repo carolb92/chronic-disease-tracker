@@ -6,7 +6,7 @@ import {
 	HLD_SNOMED_CODES,
 } from "@/lib/constants";
 import { useState } from "react";
-import type { TransformedObservation } from "@/lib/utils";
+import type { TransformedObservation } from "@/lib/clinical/observations";
 import type { HedisMeasureResult } from "@/lib/hedis";
 import DiabetesTabContent from "./DiabetesTabContent";
 import HypertensionTabContent from "./HypertensionTabContent";

@@ -1,6 +1,3 @@
 {
-	"//": "Fixes 404s on client-side routes (e.g. /launch, /app) when loaded directly or refreshed on Vercel. React Router handles routing in the browser, but Vercel's static file server 404s on any path with no matching file. This rewrites all paths to index.html so React Router can take over.",
-	"rewrites": [
-		{ "source": "/(.*)", "destination": "/index.html" }
-	]
+	"rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

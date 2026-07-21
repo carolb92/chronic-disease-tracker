@@ -61,11 +61,11 @@ export default function A1cChart({ observations }: Props) {
 							/>
 							<ChartTooltip content={<ChartTooltipContent />} />
 							<ReferenceLine
-								y={8}
+								y={A1C_GOAL}
 								stroke="var(--destructive)"
 								strokeDasharray="4 2"
 								label={{
-									value: "Goal: <8%",
+									value: `Goal: <${A1C_GOAL}%`,
 									fill: "var(--destructive)",
 									fontSize: 10,
 									position: "insideTopRight",

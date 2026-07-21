@@ -144,8 +144,10 @@ export default function TriglyceridesChart({ observations }: Props) {
 					)}
 				</div>
 				<p className="text-xs text-muted-foreground">
-					Fat particles in the blood — lower levels reduce your risk of heart
-					disease and pancreatitis
+					Fat particles in the blood — high triglyceride levels combined with
+					high LDL cholesterol or low LDL cholesterol is linked with fatty
+					buildups within artery walls, which increases the risk of heart attack
+					and stroke.
 				</p>
 			</CardHeader>
 			<CardContent>

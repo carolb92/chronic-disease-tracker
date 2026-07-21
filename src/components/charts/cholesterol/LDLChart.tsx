@@ -59,9 +59,15 @@ export default function LDLChart({ observations, goal }: Props) {
 					<div>
 						<CardTitle className="text-base">LDL Cholesterol</CardTitle>
 						{latest?.numericValue != null && (
-							<p className="mt-0.5 text-xs text-muted-foreground">
-								Most recent: {latest.date}
-							</p>
+							<>
+								<p className="mt-0.5 text-xs text-muted-foreground">
+									Most recent: {latest.date}
+								</p>
+								<p className="mt-0.5 text-xs text-muted-foreground">
+									High levels of LDL ("bad") cholesterol can increase risk of
+									heart disease and stroke.
+								</p>
+							</>
 						)}
 					</div>
 					{ldlAtGoal !== null && (

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
 	LineChart,
 	Line,
@@ -61,7 +62,33 @@ export default function BPChart({ observations }: Props) {
 								unit=" mmHg"
 								domain={[40, "auto"]}
 							/>
-							<ChartTooltip content={<ChartTooltipContent />} />
+							<ChartTooltip
+								content={
+									<ChartTooltipContent
+										formatter={(value, name, item) => (
+											<>
+												<div
+													className="h-2.5 w-2.5 shrink-0 rounded-xs bg-(--color-bg)"
+													style={
+														{
+															"--color-bg": item.color,
+														} as CSSProperties
+													}
+												/>
+												<div className="flex flex-1 justify-between leading-none">
+													<span className="text-muted-foreground">
+														{chartConfig[name as keyof typeof chartConfig]
+															?.label ?? name}
+													</span>
+													<span className="text-foreground font-mono font-medium tabular-nums">
+														{Math.round(Number(value))}
+													</span>
+												</div>
+											</>
+										)}
+									/>
+								}
+							/>
 							<ChartLegend content={<ChartLegendContent />} />
 							<ReferenceLine
 								y={140}

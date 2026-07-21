@@ -1,8 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import type { HedisMeasureResult, MeasureStatus } from "@/lib/hedis";
+import type { DiabetesCareGuidelineResult, MeasureStatus } from "@/lib/diabetesCareGuidelines";
 
 type Props = {
-	measures: HedisMeasureResult[];
+	measures: DiabetesCareGuidelineResult[];
 };
 
 const statusStyles: Record<MeasureStatus, string> = {

@@ -3,7 +3,7 @@ import { deriveClinicalView } from "./deriveClinicalView";
 import { makeCondition, makeObservation, makePatient } from "@/test/fixtures";
 
 describe("deriveClinicalView", () => {
-	it("populates HEDIS measures for a diabetic patient", () => {
+	it("populates diabetes care guideline measures for a diabetic patient", () => {
 		const patient = makePatient({ birthDate: "1970-01-01" });
 		const conditions = [makeCondition({ snomed: "46635009" })]; // T1DM
 		const observations = [
@@ -12,12 +12,12 @@ describe("deriveClinicalView", () => {
 
 		const view = deriveClinicalView(patient, conditions, observations);
 
-		expect(view.diabetesHedisMeasures).not.toBeNull();
+		expect(view.diabetesCareGuidelines).not.toBeNull();
 		expect(view.relevantSNOMEDCodes).toEqual(["46635009"]);
 		expect(view.groupedObservations["4548-4"]).toHaveLength(1);
 	});
 
-	it("leaves HEDIS measures null for a non-diabetic patient", () => {
+	it("leaves diabetes care guideline measures null for a non-diabetic patient", () => {
 		const patient = makePatient();
 		const conditions = [makeCondition({ snomed: "38341003" })]; // essential HTN
 		const observations = [
@@ -26,7 +26,7 @@ describe("deriveClinicalView", () => {
 
 		const view = deriveClinicalView(patient, conditions, observations);
 
-		expect(view.diabetesHedisMeasures).toBeNull();
+		expect(view.diabetesCareGuidelines).toBeNull();
 	});
 
 	it("excludes observations unrelated to the patient's tracked conditions", () => {

@@ -3,7 +3,7 @@ import {
 	SNOMED_TO_LOINC,
 	DM_SNOMED_CODES,
 } from "@/lib/constants";
-import { evaluateDiabetesHedisMeasures } from "@/lib/hedis";
+import { evaluateDiabetesCareGuidelines } from "@/lib/diabetesCareGuidelines";
 import { deriveDisplayDemographics } from "./demographics";
 import {
 	extractSNOMEDCodes,
@@ -47,13 +47,13 @@ export function deriveClinicalView(
 
 	const hasDiabetes = hasAnyCode(relevantSNOMEDCodes, DM_SNOMED_CODES);
 
-	const diabetesHedisMeasures = hasDiabetes
-		? evaluateDiabetesHedisMeasures(relevantObservations)
+	const diabetesCareGuidelines = hasDiabetes
+		? evaluateDiabetesCareGuidelines(relevantObservations)
 		: null;
 
 	return {
 		groupedObservations,
-		diabetesHedisMeasures,
+		diabetesCareGuidelines,
 		displayName,
 		displayBDay,
 		age,

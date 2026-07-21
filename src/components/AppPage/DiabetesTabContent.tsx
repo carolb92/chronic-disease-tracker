@@ -1,5 +1,5 @@
 import type { TransformedObservation } from "@/lib/clinical/observations";
-import type { HedisMeasureResult } from "@/lib/hedis";
+import type { DiabetesCareGuidelineResult } from "@/lib/diabetesCareGuidelines";
 import MetricCard, { type MetricStatus } from "./MetricCard";
 import A1cChart from "@/components/charts/diabetes/A1cChart";
 import GlucoseChart, { type GlucoseType } from "@/components/charts/diabetes/GlucoseChart";
@@ -8,16 +8,16 @@ import { RANDOM_GLUCOSE_CODES } from "@/lib/constants";
 
 type Props = {
 	groupedObservations: Record<string, TransformedObservation[]>;
-	diabetesHedisMeasures: HedisMeasureResult[] | null;
+	diabetesCareGuidelines: DiabetesCareGuidelineResult[] | null;
 };
 
 export default function DiabetesTabContent({
 	groupedObservations,
-	diabetesHedisMeasures,
+	diabetesCareGuidelines,
 }: Props) {
 	const latestA1c = groupedObservations["4548-4"]?.[0];
-	const metCount = (diabetesHedisMeasures ?? []).filter((m) => m.status === "met").length;
-	const totalCount = diabetesHedisMeasures?.length ?? 0;
+	const metCount = (diabetesCareGuidelines ?? []).filter((m) => m.status === "met").length;
+	const totalCount = diabetesCareGuidelines?.length ?? 0;
 
 	// Prefer fasting glucose; fall back to first available BMP glucose code
 	const fastingObs = groupedObservations["1558-6"] ?? [];
@@ -59,7 +59,7 @@ export default function DiabetesTabContent({
 	})();
 
 	const checklistStatus: MetricStatus =
-		diabetesHedisMeasures && totalCount > 0 && metCount === totalCount
+		diabetesCareGuidelines && totalCount > 0 && metCount === totalCount
 			? "good"
 			: "neutral";
 
@@ -68,7 +68,7 @@ export default function DiabetesTabContent({
 	const metrics = [
 		{ label: "HbA1c", value: a1cValue, subtext: latestA1c?.date, status: a1cStatus },
 		{ label: glucoseLabel, value: glucoseValue, subtext: latestGlucose?.date, status: glucoseStatus },
-		{ label: "Diabetes Care Checklist", value: diabetesHedisMeasures ? `${metCount}/${totalCount} met` : "—", status: checklistStatus },
+		{ label: "Diabetes Care Checklist", value: diabetesCareGuidelines ? `${metCount}/${totalCount} met` : "—", status: checklistStatus },
 	];
 
 	return (
@@ -82,8 +82,8 @@ export default function DiabetesTabContent({
 			<A1cChart observations={groupedObservations["4548-4"] ?? []} />
 			<GlucoseChart observations={glucoseObservations} glucoseType={glucoseType} />
 
-			{diabetesHedisMeasures && diabetesHedisMeasures.length > 0 && (
-				<DiabetesCareChecklist measures={diabetesHedisMeasures} />
+			{diabetesCareGuidelines && diabetesCareGuidelines.length > 0 && (
+				<DiabetesCareChecklist measures={diabetesCareGuidelines} />
 			)}
 		</div>
 	);

@@ -17,7 +17,7 @@ export default function AppPage() {
 		conditionsErr,
 		relevantSNOMEDCodes,
 		groupedObservations,
-		diabetesHedisMeasures,
+		diabetesCareGuidelines,
 	} = useFHIRResources();
 
 	const genderInitial = gender?.length ? gender[0].toUpperCase() : null;
@@ -105,7 +105,7 @@ export default function AppPage() {
 					<AppPageTabs
 						SNOMEDCodes={relevantSNOMEDCodes}
 						groupedObservations={groupedObservations}
-						diabetesHedisMeasures={diabetesHedisMeasures}
+						diabetesCareGuidelines={diabetesCareGuidelines}
 						gender={gender}
 					/>
 

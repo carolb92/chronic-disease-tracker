@@ -1,4 +1,4 @@
-import type { TransformedObservation } from "@/lib/utils";
+import type { TransformedObservation } from "@/lib/clinical/observations";
 import type { HedisMeasureResult } from "@/lib/hedis";
 import MetricCard, { type MetricStatus } from "./MetricCard";
 import A1cChart from "@/components/charts/diabetes/A1cChart";

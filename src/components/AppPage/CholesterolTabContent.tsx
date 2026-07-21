@@ -1,4 +1,4 @@
-import type { TransformedObservation } from "@/lib/utils";
+import type { TransformedObservation } from "@/lib/clinical/observations";
 import MetricCard, { type MetricStatus } from "./MetricCard";
 import LDLChart from "@/components/charts/cholesterol/LDLChart";
 import HDLChart from "@/components/charts/cholesterol/HDLChart";
